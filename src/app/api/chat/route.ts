@@ -67,12 +67,12 @@ export async function POST(req: Request) {
     }))
   ];
 
-  const stream = await model.generateContentStream({
+  const geminiStream = await model.generateContentStream({
     contents,
     safetySettings,
   });
 
-  const googleStream = GoogleAIStream(stream);
+  const stream = GoogleAIStream(geminiStream);
 
-  return new StreamingTextResponse(googleStream);
+  return new StreamingTextResponse(stream);
 }
