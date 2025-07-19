@@ -24,6 +24,7 @@ const fontPoppins = Poppins({
 const fontInter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
+  weight: ['400', '500', '600'],
 });
 
 export default function RootLayout({

@@ -17,28 +17,28 @@ export default function HomePage() {
           <h2 className="text-3xl md:text-4xl font-bold font-headline mb-2 text-foreground">
             Welcome!
           </h2>
-          <p className="text-muted-foreground mb-8">
+          <p className="text-muted-foreground mb-8 text-lg">
             Your friendly guide to menstrual health.
           </p>
 
           <div className="grid grid-cols-1 gap-4">
             <Link href="/chat" passHref>
-              <Button size="lg" className="w-full h-16 text-lg tracking-wide">
+              <Button size="lg" className="w-full h-16 text-lg tracking-wide font-semibold">
                 <MessageCircle className="mr-3 h-6 w-6" />
                 Ask a Question
               </Button>
             </Link>
             <Link href="/map" passHref>
-              <Button size="lg" variant="secondary" className="w-full h-16 text-lg tracking-wide">
+              <Button size="lg" variant="secondary" className="w-full h-16 text-lg tracking-wide font-semibold">
                 <MapPin className="mr-3 h-6 w-6" />
                 Find Free Products
               </Button>
             </Link>
           </div>
 
-          <Card className="mt-10 text-left shadow-lg border-accent">
+          <Card className="mt-10 text-left shadow-lg border-accent rounded-xl">
             <CardHeader className="flex flex-row items-center gap-4 space-y-0 p-4">
-              <div className="p-2 bg-accent/50 rounded-full">
+              <div className="p-3 bg-accent/50 rounded-full">
                 <Lightbulb className="w-6 h-6 text-accent-foreground" />
               </div>
               <CardTitle className="font-headline text-xl">Daily Tip</CardTitle>
