@@ -5,7 +5,7 @@ import {
   HarmBlockThreshold,
   GenerateContentRequest,
 } from '@google/generative-ai';
-import { GoogleAIStream, StreamingTextResponse } from '@google/generative-ai/server-edge';
+import { GoogleAIStream, StreamingTextResponse } from 'ai/google';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
