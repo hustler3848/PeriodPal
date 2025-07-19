@@ -8,15 +8,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { locations as allLocations, Location } from "@/lib/data";
-import { PlusCircle, Search } from "lucide-react";
+import { PlusCircle, Search, LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import { LoaderCircle } from "lucide-react";
+import type { Map } from 'leaflet';
 
 const allProducts = Array.from(new Set(allLocations.flatMap(l => l.available_products)));
 
-const Map = dynamic(() => import('@/components/interactive-map'), { 
+const InteractiveMap = dynamic(() => import('@/components/interactive-map'), { 
   ssr: false,
   loading: () => <div className="w-full h-full bg-muted flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin" /></div>
 });
@@ -25,6 +25,7 @@ export default function MapPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [showAccessible, setShowAccessible] = useState(false);
+    const [map, setMap] = useState<Map | null>(null);
 
     const handleProductChange = (product: string) => {
         setSelectedProducts(prev => 
@@ -92,7 +93,7 @@ export default function MapPage() {
       </div>
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         <div className="relative h-64 md:h-auto md:flex-1">
-            <Map locations={filteredLocations} />
+            <InteractiveMap locations={filteredLocations} whenCreated={setMap} />
         </div>
         <div className="flex-1 flex flex-col overflow-hidden md:max-w-sm lg:max-w-md border-t md:border-t-0 md:border-l">
             <div className="p-4 flex justify-between items-center shrink-0">

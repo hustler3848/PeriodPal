@@ -35,9 +35,10 @@ const MapUpdater = ({ locations }: { locations: Location[] }) => {
 
 interface InteractiveMapProps {
     locations: Location[];
+    whenCreated: (map: L.Map) => void;
 }
 
-export default function InteractiveMap({ locations }: InteractiveMapProps) {
+export default function InteractiveMap({ locations, whenCreated }: InteractiveMapProps) {
     const defaultPosition: [number, number] = [27.7172, 85.3240]; // Default to Kathmandu
 
     return (
@@ -46,6 +47,7 @@ export default function InteractiveMap({ locations }: InteractiveMapProps) {
             zoom={12} 
             className="w-full h-full"
             scrollWheelZoom={false}
+            whenCreated={whenCreated}
         >
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
