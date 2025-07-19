@@ -20,9 +20,7 @@ const nextConfig: NextConfig = {
   },
   // This is required to allow the Next.js dev server to be proxied
   // in the Firebase Studio environment.
-  experimental: {
-    allowedDevOrigins: ['https://*.cluster-ejd22kqny5htuv5dfowoyipt52.cloudworkstations.dev'],
-  },
+  allowedDevOrigins: ['https://*.cluster-ejd22kqny5htuv5dfowoyipt52.cloudworkstations.dev'],
 };
 
 export default nextConfig;
