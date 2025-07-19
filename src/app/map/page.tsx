@@ -104,14 +104,14 @@ export default function MapPage() {
         {/* Mobile: Tabbed View */}
         <div className="flex-1 flex flex-col md:hidden overflow-hidden">
           <Tabs defaultValue="list" className="flex-1 flex flex-col overflow-hidden">
-            <TabsList className="grid w-full grid-cols-2 mt-2">
-              <TabsTrigger value="list"><List className="mr-2" />List View</TabsTrigger>
-              <TabsTrigger value="map"><Map className="mr-2" />Map View</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 m-2 mb-0">
+              <TabsTrigger value="list"><List className="mr-2 h-4 w-4" />List View</TabsTrigger>
+              <TabsTrigger value="map"><Map className="mr-2 h-4 w-4" />Map View</TabsTrigger>
             </TabsList>
-            <TabsContent value="list" className="flex-1 flex flex-col overflow-y-auto">
+            <TabsContent value="list" className="flex-1 flex flex-col overflow-y-auto mt-0">
               <LocationListContent locations={filteredLocations} />
             </TabsContent>
-            <TabsContent value="map" className="flex-1 bg-muted">
+            <TabsContent value="map" className="flex-1 bg-muted mt-2">
                <InteractiveMap locations={filteredLocations} />
             </TabsContent>
           </Tabs>
