@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { locations as allLocations, Location } from "@/lib/data";
-import { ListFilter, PlusCircle, Search } from "lucide-react";
+import { PlusCircle, Search } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
