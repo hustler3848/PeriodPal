@@ -10,14 +10,15 @@ import {ai} from '@/ai/genkit';
 import {googleAI} from '@genkit-ai/googleai';
 import {z} from 'genkit';
 
+export type TranslateInput = z.infer<typeof TranslateInputSchema>;
 const TranslateInputSchema = z.object({
   text: z.string(),
   language: z.string(),
 });
-export type TranslateInput = z.infer<typeof TranslateInputSchema>;
 
-const TranslateOutputSchema = z.string();
 export type TranslateOutput = z.infer<typeof TranslateOutputSchema>;
+const TranslateOutputSchema = z.string();
+
 
 export async function translate(input: TranslateInput): Promise<TranslateOutput> {
   return translateFlow(input);

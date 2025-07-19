@@ -126,22 +126,26 @@ export default function ChatInterface() {
     }
     // Translate FAQs when language changes
     const translateFaqs = async () => {
+        // Always set English FAQs first as a fallback
+        setTranslatedFaqs(faqs);
         if (language === 'en') {
-            setTranslatedFaqs(faqs);
             return;
         }
         try {
             const translated = await Promise.all(
                 faqs.map(faq => translate({ text: faq, language: language }))
             );
-            setTranslatedFaqs(translated);
+            // Filter out any empty results before setting
+            const validTranslations = translated.filter(t => t && t.trim() !== '');
+            if (validTranslations.length === faqs.length) {
+                setTranslatedFaqs(validTranslations);
+            }
         } catch (error) {
             console.error("Failed to translate FAQs, falling back to English", error);
-            setTranslatedFaqs(faqs); // Fallback to English on error
              toast({
               variant: 'destructive',
               title: 'Translation Error',
-              description: 'Could not translate suggestions. Please try again later.',
+              description: 'Could not translate suggestions. Using default language.',
             });
         }
     };
