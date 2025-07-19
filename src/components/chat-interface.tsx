@@ -1,3 +1,4 @@
+
 'use client';
 
 import { answerMenstrualHealthQuestion } from '@/ai/flows/answer-menstrual-health-question';
@@ -31,19 +32,17 @@ const CHAT_STORAGE_KEY = 'periodpal-chat-history-v2';
 
 const languages = [
   { value: 'en', label: 'English' },
-  { value: 'es', label: 'Español' },
-  { value: 'fr', label: 'Français' },
-  { value: 'de', label: 'Deutsch' },
   { value: 'hi', label: 'हिन्दी' },
-  { value: 'pt', label: 'Português' },
 ];
 
 export default function ChatInterface({ faqs }: { faqs: string[] }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [language, setLanguage] = useState<string>('en');
+  const [translatedFaqs, setTranslatedFaqs] = useState(faqs);
   
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isFaqLoading, setIsFaqLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const recognitionRef = useRef<any>(null);
@@ -73,6 +72,29 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
       console.error('Error saving chat history to localStorage', error);
     }
   }, [messages, language]);
+  
+  useEffect(() => {
+    const translateFaqs = async () => {
+      if (language === 'hi') {
+        setIsFaqLoading(true);
+        try {
+          const translated = await Promise.all(
+            faqs.map(faq => translateText({ text: faq, targetLanguage: 'hi' }))
+          );
+          setTranslatedFaqs(translated.map(t => t.translatedText));
+        } catch (error) {
+            console.error('Error translating FAQs:', error);
+            setTranslatedFaqs(faqs); // Fallback to English if translation fails
+            toast({ variant: 'destructive', title: 'Translation Error', description: 'Could not translate FAQs.' });
+        } finally {
+            setIsFaqLoading(false);
+        }
+      } else {
+        setTranslatedFaqs(faqs);
+      }
+    };
+    translateFaqs();
+  }, [language, faqs, toast]);
 
   useEffect(() => {
     // Online/Offline detection
@@ -150,23 +172,55 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  const handleFaqClick = async (question: string) => {
+  const handleFaqClick = async (faqIndex: number) => {
     if (isLoading) return;
+    
+    const originalQuestion = faqs[faqIndex];
+    const displayedQuestion = translatedFaqs[faqIndex];
 
-    if (language !== 'en') {
-        setIsLoading(true);
-        try {
-            const translatedQuestion = await translateText({ text: question, targetLanguage: language });
-            handleSubmit(undefined, translatedQuestion.translatedText);
-        } catch (error) {
-            console.error('Error translating FAQ:', error);
-            toast({ variant: 'destructive', title: 'Translation Error', description: 'Could not translate the question.' });
-            setIsLoading(false);
-        }
-    } else {
-        handleSubmit(undefined, question);
+    // Add the user's message to the chat in the currently selected language
+    const newUserMessage: Message = { id: Date.now().toString(), text: displayedQuestion, sender: 'user' };
+    setMessages(prev => [...prev, newUserMessage]);
+    
+    setIsLoading(true);
+
+    try {
+      // The AI always gets the question in English
+      const result = await answerMenstrualHealthQuestion({ question: originalQuestion });
+      let answerInTargetLanguage = result.answer;
+
+      // Translate answer back to user's language if needed
+      if (language !== 'en') {
+        answerInTargetLanguage = (await translateText({ text: result.answer, targetLanguage: language })).translatedText;
+      }
+      
+      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: answerInTargetLanguage, sender: 'ai' };
+      setMessages(prev => [...prev, aiMessage]);
+
+    } catch (error) {
+      handleChatError(error);
+    } finally {
+      setIsLoading(false);
     }
   };
+  
+  const handleChatError = async (error: unknown) => {
+    console.error('Error in chat submission flow:', error);
+    let errorMessageText = 'I’m here to help! Sorry, something went wrong. Try rephrasing or check our offline FAQ.';
+    if (language !== 'en') {
+        try {
+            errorMessageText = (await translateText({ text: errorMessageText, targetLanguage: language })).translatedText;
+        } catch (translateError) {
+            // Ignore if even the error message translation fails
+        }
+    }
+    const errorMessage: Message = {
+      id: (Date.now() + 1).toString(),
+      text: errorMessageText,
+      sender: 'ai',
+    };
+    setMessages(prev => [...prev, errorMessage]);
+  }
 
   const handleSubmit = async (e?: FormEvent<HTMLFormElement>, question?: string) => {
     if (e) e.preventDefault();
@@ -206,21 +260,7 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
       setMessages(prev => [...prev, aiMessage]);
 
     } catch (error) {
-      console.error('Error in chat submission flow:', error);
-      let errorMessageText = 'I’m here to help! Sorry, something went wrong. Try rephrasing or check our offline FAQ.';
-      if (language !== 'en') {
-          try {
-              errorMessageText = (await translateText({ text: errorMessageText, targetLanguage: language })).translatedText;
-          } catch (translateError) {
-              // Ignore if even the error message translation fails
-          }
-      }
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: errorMessageText,
-        sender: 'ai',
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      handleChatError(error);
     } finally {
       setIsLoading(false);
     }
@@ -228,8 +268,6 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
   
   const handleLanguageChange = (value: string) => {
     setLanguage(value);
-    // Optionally clear chat history on language change
-    // setMessages([]);
   };
 
   return (
@@ -260,19 +298,35 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
                  </div>
             )}
             <h2 className="text-xl font-semibold mb-4 font-headline">Frequently Asked Questions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {faqs.map((faq, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  className="p-4 h-auto text-left justify-start text-base"
-                  onClick={() => handleFaqClick(faq)}
-                  disabled={!isOnline || isLoading}
-                >
-                  {faq}
-                </Button>
-              ))}
-            </div>
+            {isFaqLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {Array.from({ length: faqs.length }).map((_, index) => (
+                        <Button
+                            key={index}
+                            variant="outline"
+                            className="p-4 h-auto text-left justify-start text-base"
+                            disabled
+                        >
+                            <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />
+                            Translating...
+                        </Button>
+                    ))}
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {translatedFaqs.map((faq, index) => (
+                    <Button
+                    key={index}
+                    variant="outline"
+                    className="p-4 h-auto text-left justify-start text-base"
+                    onClick={() => handleFaqClick(index)}
+                    disabled={!isOnline || isLoading}
+                    >
+                    {faq}
+                    </Button>
+                ))}
+                </div>
+            )}
           </div>
         )}
         {messages.map(message => (
@@ -348,3 +402,5 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
     </div>
   );
 }
+
+    
