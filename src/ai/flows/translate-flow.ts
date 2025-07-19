@@ -39,6 +39,6 @@ const translateFlow = ai.defineFlow(
   },
   async (input: TranslateInput) => {
     const {output} = await translatePrompt(input);
-    return output!;
+    return output ?? '';
   }
 );
