@@ -46,13 +46,13 @@ export default function HomePage() {
             <Link href="/chat" passHref>
               <Button size="lg" className="w-full h-16 text-lg tracking-wide font-semibold">
                 <MessageCircle className="mr-3 h-6 w-6" />
-                {uiText.askAQuestion}
+                Ask a Question
               </Button>
             </Link>
             <Link href="/map" passHref>
               <Button size="lg" variant="secondary" className="w-full h-16 text-lg tracking-wide font-semibold">
                 <MapPin className="mr-3 h-6 w-6" />
-                {uiText.findFreeProducts}
+                Find Free Products
               </Button>
             </Link>
           </div>
@@ -62,7 +62,7 @@ export default function HomePage() {
               <div className="p-3 bg-accent/50 rounded-full">
                 <Lightbulb className="w-6 h-6 text-accent-foreground" />
               </div>
-              <CardTitle className="font-headline text-xl">{uiText.dailyTip}</CardTitle>
+              <CardTitle className="font-headline text-xl">Daily Tip</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
               <p className="text-foreground/90">
@@ -76,7 +76,7 @@ export default function HomePage() {
                <div className="p-3 bg-secondary/50 rounded-full">
                 <ShieldQuestion className="w-6 h-6 text-secondary-foreground" />
               </div>
-              <CardTitle className="font-headline text-xl">{uiText.mythBuster}</CardTitle>
+              <CardTitle className="font-headline text-xl">Myth Buster</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0 space-y-2">
               <p className="font-semibold text-foreground/90">{myth.myth}</p>
