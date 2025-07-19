@@ -1,7 +1,6 @@
 
 'use client';
 
-import { answerMenstrualHealthQuestion, AnswerMenstrualHealthQuestionInput, Message as AIMessage } from '@/ai/flows/answer-menstrual-health-question';
 import { translateText } from '@/ai/flows/translate-text';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -13,12 +12,7 @@ import { localizations } from '@/lib/localization';
 import { cn } from '@/lib/utils';
 import { Globe, Heart, LoaderCircle, Mic, SendHorizonal, User } from 'lucide-react';
 import React, { FormEvent, useEffect, useRef, useState } from 'react';
-
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'ai';
-}
+import { useChat, type Message } from 'ai/react';
 
 interface ChatHistory {
   messages: Message[];
@@ -34,18 +28,25 @@ const CHAT_STORAGE_KEY = 'periodpal-chat-history-v2';
 
 export default function ChatInterface() {
   const { region, language, setLanguage, isInitialized } = useSettings();
-  const [messages, setMessages] = useState<Message[]>([]);
   const [translatedFaqs, setTranslatedFaqs] = useState<string[]>([]);
-  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [isFaqLoading, setIsFaqLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  const { messages, setMessages, input, setInput, handleSubmit, isLoading } = useChat({
+      api: '/api/chat',
+      body: {
+          region: region
+      },
+      onError: (error) => {
+          console.error('Error in chat submission flow:', error);
+          toast({ variant: 'destructive', title: 'Error', description: 'Sorry, something went wrong. Please try again.' });
+      },
+  });
 
   const faqs = localizations[region].faqs;
   const languages = localizations[region].languages;
@@ -62,7 +63,7 @@ export default function ChatInterface() {
         console.error('Error reading chat history from localStorage', error);
       }
     }
-  }, [isInitialized]);
+  }, [isInitialized, setMessages]);
 
   useEffect(() => {
     if (isInitialized) {
@@ -119,7 +120,6 @@ export default function ChatInterface() {
       recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
-        submitMessage(transcript);
         stopListening();
       };
 
@@ -145,7 +145,7 @@ export default function ChatInterface() {
         recognitionRef.current.stop();
       }
     };
-  }, [toast, language]);
+  }, [toast, language, setInput]);
   
   useEffect(() => {
     if (recognitionRef.current) {
@@ -175,115 +175,13 @@ export default function ChatInterface() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading, suggestedQuestions]);
+  }, [messages, isLoading]);
 
   const handleFaqClick = async (faqIndex: number) => {
     if (isLoading) return;
     
-    const originalQuestion = faqs[faqIndex];
     const displayedQuestion = translatedFaqs[faqIndex];
-
-    submitMessage(displayedQuestion, originalQuestion);
-  };
-  
-  const handleChatError = async (error: unknown) => {
-    console.error('Error in chat submission flow:', error);
-    let errorMessageText = 'I’m here to help! Sorry, something went wrong. Try rephrasing or check our offline FAQ.';
-    if (language !== 'en') {
-        try {
-            errorMessageText = (await translateText({ text: errorMessageText, targetLanguage: language })).translatedText;
-        } catch (translateError) {
-            // Ignore if even the error message translation fails
-        }
-    }
-    const errorMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      text: errorMessageText,
-      sender: 'ai',
-    };
-    setMessages(prev => [...prev, errorMessage]);
-  }
-
-  const handleSubmit = async (e?: FormEvent<HTMLFormElement>) => {
-    if (e) e.preventDefault();
-    if (!input.trim()) return;
-    submitMessage(input);
-  };
-
-  const submitMessage = async (messageText: string, originalQuestionInEnglish?: string) => {
-    if (!messageText.trim()) return;
-
-    if (!isOnline) {
-       toast({
-          variant: 'destructive',
-          title: 'You are offline',
-          description: 'Please check your internet connection to use the chat.',
-        });
-        return;
-    }
-
-    const newUserMessage: Message = { id: Date.now().toString(), text: messageText, sender: 'user' };
-    
-    setMessages(prev => [...prev, newUserMessage]);
-    setInput('');
-    setIsLoading(true);
-    setSuggestedQuestions([]);
-    
-    try {
-      // 1. Translate user message to English if needed
-      const questionInEnglish = originalQuestionInEnglish
-        ? originalQuestionInEnglish
-        : language === 'en'
-        ? messageText
-        : (await translateText({ text: messageText, targetLanguage: 'en' })).translatedText;
-
-      // 2. Prepare chat history for AI (in English)
-      const historyInEnglish: AIMessage[] = await Promise.all(
-        messages.map(async (msg): Promise<AIMessage> => {
-          if (msg.sender === 'user') {
-            const text = (language === 'en' || msg.text === originalQuestionInEnglish) 
-              ? msg.text 
-              : (await translateText({ text: msg.text, targetLanguage: 'en' })).translatedText;
-            return { role: 'user', content: text };
-          } else { // 'ai'
-            const text = (language === 'en')
-              ? msg.text
-              : (await translateText({ text: msg.text, targetLanguage: 'en' })).translatedText;
-            return { role: 'model', content: text };
-          }
-        })
-      );
-      
-      const aiInput: AnswerMenstrualHealthQuestionInput = {
-          question: questionInEnglish,
-          chatHistory: historyInEnglish,
-          region: region,
-      }
-
-      // 3. Get answer and suggestions in English
-      const result = await answerMenstrualHealthQuestion(aiInput);
-      let answerInTargetLanguage = result.answer;
-      let suggestionsInTargetLanguage = result.suggestedQuestions || [];
-
-      // 4. Translate answer and suggestions back to user's language if needed
-      if (language !== 'en') {
-        answerInTargetLanguage = (await translateText({ text: result.answer, targetLanguage: language })).translatedText;
-        if (result.suggestedQuestions) {
-            suggestionsInTargetLanguage = (await Promise.all(
-                result.suggestedQuestions.map(q => translateText({ text: q, targetLanguage: language }))
-            )).map(t => t.translatedText);
-        }
-      }
-      
-      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: answerInTargetLanguage, sender: 'ai' };
-      setMessages(prev => [...prev, aiMessage]);
-      setSuggestedQuestions(suggestionsInTargetLanguage);
-
-    } catch (error) {
-      handleChatError(error);
-    } finally {
-      setIsLoading(false);
-    }
+    setInput(displayedQuestion);
   };
   
   if (!isInitialized) {
@@ -356,9 +254,9 @@ export default function ChatInterface() {
         {messages.map(message => (
           <div
             key={message.id}
-            className={cn('flex items-start gap-3', { 'justify-end': message.sender === 'user' })}
+            className={cn('flex items-start gap-3', { 'justify-end': message.role === 'user' })}
           >
-            {message.sender === 'ai' && (
+            {message.role === 'assistant' && (
               <Avatar className="w-9 h-9 border-2 border-primary">
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   <Heart className="w-5 h-5" />
@@ -367,13 +265,13 @@ export default function ChatInterface() {
             )}
             <div
               className={cn('max-w-xs md:max-w-md lg:max-w-lg rounded-2xl p-3.5 shadow', {
-                'bg-primary text-primary-foreground rounded-br-none': message.sender === 'user',
-                'bg-card text-card-foreground rounded-bl-none': message.sender === 'ai',
+                'bg-primary text-primary-foreground rounded-br-none': message.role === 'user',
+                'bg-card text-card-foreground rounded-bl-none': message.role === 'assistant',
               })}
             >
-              <p className="whitespace-pre-wrap text-base">{message.text}</p>
+              <p className="whitespace-pre-wrap text-base">{message.content}</p>
             </div>
-            {message.sender === 'user' && (
+            {message.role === 'user' && (
               <Avatar className="w-9 h-9 border">
                 <AvatarFallback>
                   <User className="w-5 h-5" />
@@ -382,7 +280,7 @@ export default function ChatInterface() {
             )}
           </div>
         ))}
-        {isLoading && (
+        {isLoading && messages[messages.length -1]?.role === 'user' && (
           <div className="flex items-start gap-3">
             <Avatar className="w-9 h-9 border-2 border-primary">
               <AvatarFallback className="bg-primary text-primary-foreground">
@@ -393,23 +291,6 @@ export default function ChatInterface() {
               <LoaderCircle className="w-5 h-5 animate-spin" />
             </div>
           </div>
-        )}
-        {!isLoading && suggestedQuestions.length > 0 && (
-             <div className="flex justify-end">
-                <div className="flex flex-col items-end gap-2">
-                    {suggestedQuestions.map((q, i) => (
-                        <Button
-                            key={i}
-                            variant="outline"
-                            size="sm"
-                            className="h-auto py-2"
-                            onClick={() => submitMessage(q)}
-                        >
-                            {q}
-                        </Button>
-                    ))}
-                </div>
-            </div>
         )}
         <div ref={messagesEndRef} />
       </div>
@@ -424,7 +305,7 @@ export default function ChatInterface() {
           onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              handleSubmit();
+              handleSubmit(e as any);
             }
           }}
           disabled={isLoading || !isOnline}

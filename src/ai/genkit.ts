@@ -1,7 +1,13 @@
-import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/googleai';
+import {genkit, configureGenkit} from 'genkit';
+import {googleAI} from '@gen-ai/google-ai';
+import { defineDotprompt } from 'genkit/dotprompt';
 
-export const ai = genkit({
+configureGenkit({
   plugins: [googleAI()],
-  model: 'googleai/gemini-2.0-flash',
+  logLevel: 'debug',
+  enableTracingAndMetrics: true,
 });
+
+export default {
+  // Add Genkit assets here
+};
