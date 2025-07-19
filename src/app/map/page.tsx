@@ -90,7 +90,7 @@ export default function MapPage() {
         </div>
       </div>
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        <div className="relative h-64 md:h-auto md:flex-1">
+        <div className="relative h-full w-full md:flex-1">
             <InteractiveMap locations={filteredLocations} />
         </div>
         <div className="flex-1 flex flex-col overflow-hidden md:max-w-sm lg:max-w-md border-t md:border-t-0 md:border-l">
