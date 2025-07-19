@@ -1,0 +1,9 @@
+{
+  "name": "PeriodPal",
+  "short_name": "PeriodPal",
+  "description": "Your friendly guide to menstrual health.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F9E4E8",
+  "theme_color": "#F4B4C4"
+}
