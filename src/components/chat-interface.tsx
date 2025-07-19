@@ -1,7 +1,6 @@
 
 'use client';
 
-import { translateText } from '@/ai/flows/translate-text';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -28,9 +27,7 @@ const CHAT_STORAGE_KEY = 'periodpal-chat-history-v2';
 
 export default function ChatInterface() {
   const { region, language, setLanguage, isInitialized } = useSettings();
-  const [translatedFaqs, setTranslatedFaqs] = useState<string[]>([]);
   
-  const [isFaqLoading, setIsFaqLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const recognitionRef = useRef<any>(null);
@@ -76,32 +73,6 @@ export default function ChatInterface() {
     }
   }, [messages, language, isInitialized]);
   
-  useEffect(() => {
-    const translateFaqs = async () => {
-      if (!isInitialized) return;
-      
-      const currentFaqs = localizations[region].faqs;
-      if (language !== 'en') {
-        setIsFaqLoading(true);
-        try {
-          const translated = await Promise.all(
-            currentFaqs.map(faq => translateText({ text: faq, targetLanguage: language }))
-          );
-          setTranslatedFaqs(translated.map(t => t.translatedText));
-        } catch (error) {
-            console.error('Error translating FAQs:', error);
-            setTranslatedFaqs(currentFaqs); // Fallback to English if translation fails
-            toast({ variant: 'destructive', title: 'Translation Error', description: 'Could not translate FAQs.' });
-        } finally {
-            setIsFaqLoading(false);
-        }
-      } else {
-        setTranslatedFaqs(currentFaqs);
-      }
-    };
-    translateFaqs();
-  }, [language, region, isInitialized, toast]);
-
   useEffect(() => {
     // Online/Offline detection
     const handleOnline = () => setIsOnline(true);
@@ -177,11 +148,9 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages, isLoading]);
 
-  const handleFaqClick = async (faqIndex: number) => {
+  const handleFaqClick = async (faq: string) => {
     if (isLoading) return;
-    
-    const displayedQuestion = translatedFaqs[faqIndex];
-    setInput(displayedQuestion);
+    setInput(faq);
   };
   
   if (!isInitialized) {
@@ -220,35 +189,19 @@ export default function ChatInterface() {
                  </div>
             )}
             <h2 className="text-xl font-semibold mb-4 font-headline">Frequently Asked Questions</h2>
-            {isFaqLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {Array.from({ length: faqs.length }).map((_, index) => (
-                        <Button
-                            key={index}
-                            variant="outline"
-                            className="p-4 h-auto text-left justify-start text-base"
-                            disabled
-                        >
-                            <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />
-                            Translating...
-                        </Button>
-                    ))}
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {translatedFaqs.map((faq, index) => (
-                    <Button
-                    key={index}
-                    variant="outline"
-                    className="p-4 h-auto text-left justify-start text-base"
-                    onClick={() => handleFaqClick(index)}
-                    disabled={!isOnline || isLoading}
-                    >
-                    {faq}
-                    </Button>
-                ))}
-                </div>
-            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {faqs.map((faq, index) => (
+                <Button
+                key={index}
+                variant="outline"
+                className="p-4 h-auto text-left justify-start text-base"
+                onClick={() => handleFaqClick(faq)}
+                disabled={!isOnline || isLoading}
+                >
+                {faq}
+                </Button>
+            ))}
+            </div>
           </div>
         )}
         {messages.map(message => (
