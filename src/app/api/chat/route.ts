@@ -28,30 +28,30 @@ const buildChatPrompt = (messages: Message[], region: string) => {
 
   IMPORTANT: The user is from the '${region}' region. Adapt your tone, examples, and cultural references to be respectful and relevant to this region. Avoid making assumptions, but be mindful of potential cultural sensitivities or common local beliefs when framing your answer.
   `;
-
-  // The first message is the system prompt, the second is a starter model response.
-  const prompt: GenerateContentRequest['contents'] = [
-    {
+  
+  const contents: GenerateContentRequest['contents'] = [];
+  
+  // Start with the system prompt and a priming response
+  contents.push({
       role: 'user',
       parts: [{ text: system_prompt }],
-    },
-    {
+  });
+  contents.push({
       role: 'model',
       parts: [{ text: 'I am ready to help.' }],
-    },
-  ];
+  });
 
   // Add the rest of the conversation history
   messages.forEach(message => {
     if (message.role === 'user' || message.role === 'assistant') {
-        prompt.push({
+        contents.push({
             role: message.role === 'assistant' ? 'model' : 'user',
             parts: [{ text: message.content }],
         });
     }
   });
 
-  return prompt;
+  return contents;
 };
 
 
