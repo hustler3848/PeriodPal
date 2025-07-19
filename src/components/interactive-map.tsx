@@ -4,7 +4,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import type { Location } from '@/lib/data';
 import L from 'leaflet';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 // Fix for default icon issue with webpack
 const defaultIcon = new L.Icon({
@@ -37,7 +37,7 @@ interface InteractiveMapProps {
     locations: Location[];
 }
 
-export default function InteractiveMap({ locations }: InteractiveMapProps) {
+const InteractiveMap = React.memo(function InteractiveMap({ locations }: InteractiveMapProps) {
     const defaultPosition: [number, number] = [27.7172, 85.3240]; // Default to Kathmandu
 
     return (
@@ -64,4 +64,6 @@ export default function InteractiveMap({ locations }: InteractiveMapProps) {
             <MapUpdater locations={locations} />
         </MapContainer>
     );
-}
+});
+
+export default InteractiveMap;
