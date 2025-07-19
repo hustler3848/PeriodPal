@@ -36,7 +36,11 @@ type Localizations = {
 export const localizations: Localizations = {
   usa: {
     name: "USA / Global",
-    languages: [{ value: 'en', label: 'English' }],
+    languages: [
+      { value: 'en', label: 'English' },
+      { value: 'hi', label: 'हिन्दी' },
+      { value: 'ne', label: 'नेपाली' }
+    ],
     faqs: [
       'What are common PMS symptoms?',
       'How can I relieve period cramps?',
@@ -62,12 +66,34 @@ export const localizations: Localizations = {
         dailyTip: "Daily Tip",
         tipContent: "Staying hydrated can help ease menstrual cramps. Try drinking an extra glass or two of water today!",
         mythBuster: "Myth Buster"
+      },
+      hi: {
+        welcome: "नमस्ते!",
+        welcomeSubtitle: "मासिक धर्म स्वास्थ्य के लिए आपकी मैत्रीपूर्ण मार्गदर्शिका।",
+        askAQuestion: "प्रश्न पूछें",
+        findFreeProducts: "निःशुल्क उत्पाद ढूंढें",
+        dailyTip: "आज का सुझाव",
+        tipContent: "हाइड्रेटेड रहने से मासिक धर्म के दर्द को कम करने में मदद मिल सकती है। आज एक या दो गिलास अतिरिक्त पानी पीने का प्रयास करें!",
+        mythBuster: "मिथक भंजक"
+      },
+      ne: {
+        welcome: "नमस्ते!",
+        welcomeSubtitle: "तपाईंको महिनावारी स्वास्थ्यको लागि तपाईंको मैत्रीपूर्ण गाइड।",
+        askAQuestion: "प्रश्न सोध्नुहोस्",
+        findFreeProducts: "नि: शुल्क उत्पादनहरू फेला पार्नुहोस्",
+        dailyTip: "दैनिक सुझाव",
+        tipContent: "हाइड्रेटेड रहँदा महिनावारीको दुखाइ कम गर्न मद्दत गर्दछ। आज एक वा दुई गिलास थप पानी पिउने प्रयास गर्नुहोस्!",
+        mythBuster: "मिथक बस्टर"
       }
     }
   },
   india: {
     name: "India",
-    languages: [{ value: 'en', label: 'English' }, { value: 'hi', label: 'हिन्दी' }],
+    languages: [
+        { value: 'en', label: 'English' }, 
+        { value: 'hi', label: 'हिन्दी' },
+        { value: 'ne', label: 'नेपाली' }
+    ],
     faqs: [
       'What are common PMS symptoms?',
       'How to relieve period cramps with home remedies?',
@@ -102,12 +128,25 @@ export const localizations: Localizations = {
             dailyTip: "आज का सुझाव",
             tipContent: "हाइड्रेटेड रहने से मासिक धर्म के दर्द को कम करने में मदद मिल सकती है। आज एक या दो गिलास अतिरिक्त पानी पीने का प्रयास करें!",
             mythBuster: "मिथक भंजक"
+        },
+        ne: {
+            welcome: "नमस्ते!",
+            welcomeSubtitle: "तपाईंको महिनावारी स्वास्थ्यको लागि तपाईंको मैत्रीपूर्ण गाइड।",
+            askAQuestion: "प्रश्न सोध्नुहोस्",
+            findFreeProducts: "नि: शुल्क उत्पादनहरू फेला पार्नुहोस्",
+            dailyTip: "दैनिक सुझाव",
+            tipContent: "हाइड्रेटेड रहँदा महिनावारीको दुखाइ कम गर्न मद्दत गर्दछ। आज एक वा दुई गिलास थप पानी पिउने प्रयास गर्नुहोस्!",
+            mythBuster: "मिथक बस्टर"
         }
     }
   },
   nepal: {
     name: "Nepal",
-    languages: [{ value: 'en', label: 'English' }, { value: 'ne', label: 'नेपाली' }],
+    languages: [
+        { value: 'en', label: 'English' }, 
+        { value: 'hi', label: 'हिन्दी' },
+        { value: 'ne', label: 'नेपाली' }
+    ],
     faqs: [
       'How to manage period pain naturally?',
       'What is Chhaupadi and why is it harmful?',
@@ -133,6 +172,15 @@ export const localizations: Localizations = {
             dailyTip: "Daily Tip",
             tipContent: "Staying hydrated can help ease menstrual cramps. Try drinking an extra glass or two of water today!",
             mythBuster: "Myth Buster"
+        },
+        hi: {
+            welcome: "नमस्ते!",
+            welcomeSubtitle: "मासिक धर्म स्वास्थ्य के लिए आपकी मैत्रीपूर्ण मार्गदर्शिका।",
+            askAQuestion: "प्रश्न पूछें",
+            findFreeProducts: "निःशुल्क उत्पाद ढूंढें",
+            dailyTip: "आज का सुझाव",
+            tipContent: "हाइड्रेटेड रहने से मासिक धर्म के दर्द को कम करने में मदद मिल सकती है। आज एक या दो गिलास अतिरिक्त पानी पीने का प्रयास करें!",
+            mythBuster: "मिथक भंजक"
         },
         ne: {
             welcome: "नमस्ते!",
