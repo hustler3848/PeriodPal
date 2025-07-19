@@ -3,3 +3,4 @@ config();
 
 import '@/ai/flows/cache-frequently-asked-questions.ts';
 import '@/ai/flows/answer-menstrual-health-question.ts';
+import '@/ai/flows/translate-text.ts';

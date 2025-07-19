@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from './ui/button';
 
-export function AppHeader({ title }: { title: string }) {
+export function AppHeader({ title, hasTitle = true }: { title: string, hasTitle?: boolean }) {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
 
@@ -26,7 +26,7 @@ export function AppHeader({ title }: { title: string }) {
         )}
       </div>
       <div className="flex-1 text-center">
-        {!isHomePage && <h1 className="text-lg font-semibold font-headline">{title}</h1>}
+        {hasTitle && !isHomePage && <h1 className="text-lg font-semibold font-headline">{title}</h1>}
       </div>
       <div className="w-10"></div>
     </header>

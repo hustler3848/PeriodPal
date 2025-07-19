@@ -5,7 +5,7 @@ import { faqs } from "@/lib/data";
 export default function ChatPage() {
   return (
     <div className="flex flex-col h-dvh">
-      <AppHeader title="AI Assistant" />
+      <AppHeader title="AI Assistant" hasTitle={false} />
       <div className="flex-1 overflow-y-auto">
         <ChatInterface faqs={faqs} />
       </div>
