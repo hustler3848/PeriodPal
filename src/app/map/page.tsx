@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { locations as allLocations, Location } from "@/lib/data";
-import { PlusCircle, Search, LoaderCircle } from "lucide-react";
+import { PlusCircle, Search, LoaderCircle, List, Map } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
@@ -48,8 +49,10 @@ export default function MapPage() {
     }, [searchTerm, selectedProducts, showAccessible]);
 
   return (
-    <div className="flex flex-col h-dvh">
+    <div className="flex flex-col h-dvh bg-background">
       <AppHeader title="Free Product Locator" />
+      
+      {/* Filters Section */}
       <div className="flex-shrink-0 p-4 border-b">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
@@ -89,37 +92,67 @@ export default function MapPage() {
             </div>
         </div>
       </div>
+
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        <div className="relative h-full w-full md:flex-1">
+        
+        {/* Desktop: Map View */}
+        <div className="relative hidden md:block md:w-1/2 lg:w-2/3 h-full">
             <InteractiveMap locations={filteredLocations} />
         </div>
-        <div className="flex-1 flex flex-col overflow-hidden md:max-w-sm lg:max-w-md border-t md:border-t-0 md:border-l">
-            <div className="p-4 flex justify-between items-center shrink-0">
-                <h2 className="text-lg font-semibold">
-                    Locations ({filteredLocations.length})
-                </h2>
-                <Button asChild variant="outline" size="sm">
-                    <Link href="/map/submit">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Suggest a Location
-                    </Link>
-                </Button>
-            </div>
-            {filteredLocations.length > 0 ? (
-                <div className="flex-1 overflow-y-auto p-2 space-y-2">
-                    {filteredLocations.map((location: Location) => (
-                        <LocationCard key={location.id} location={location} />
-                    ))}
-                </div>
-            ) : (
-                <div className="flex-1 flex items-center justify-center text-center p-8">
-                    <p className="text-muted-foreground">
-                        No locations match your filters. <br /> Try adjusting your search.
-                    </p>
-                </div>
-            )}
+
+        {/* Mobile: Tabbed View */}
+        <div className="flex-1 flex flex-col md:hidden overflow-hidden">
+          <Tabs defaultValue="list" className="flex-1 flex flex-col overflow-hidden">
+            <TabsList className="grid w-full grid-cols-2 mt-2">
+              <TabsTrigger value="list"><List className="mr-2" />List View</TabsTrigger>
+              <TabsTrigger value="map"><Map className="mr-2" />Map View</TabsTrigger>
+            </TabsList>
+            <TabsContent value="list" className="flex-1 flex flex-col overflow-y-auto">
+              <LocationListContent locations={filteredLocations} />
+            </TabsContent>
+            <TabsContent value="map" className="flex-1 bg-muted">
+               <InteractiveMap locations={filteredLocations} />
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Desktop: List View */}
+        <div className="hidden md:flex md:flex-col md:w-1/2 lg:w-1/3 border-l overflow-hidden">
+           <LocationListContent locations={filteredLocations} />
         </div>
       </div>
     </div>
   );
 }
+
+
+// Helper component for the location list content to avoid duplication
+const LocationListContent = ({ locations }: { locations: Location[] }) => (
+  <>
+    <div className="p-4 flex justify-between items-center shrink-0 border-b">
+        <h2 className="text-lg font-semibold">
+            Locations ({locations.length})
+        </h2>
+        <Button asChild variant="outline" size="sm">
+            <Link href="/map/submit">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Suggest
+            </Link>
+        </Button>
+    </div>
+    {locations.length > 0 ? (
+        <div className="flex-1 overflow-y-auto p-2 space-y-2">
+            {locations.map((location: Location) => (
+                <LocationCard key={location.id} location={location} />
+            ))}
+        </div>
+    ) : (
+        <div className="flex-1 flex items-center justify-center text-center p-8">
+            <p className="text-muted-foreground">
+                No locations match your filters. <br /> Try adjusting your search.
+            </p>
+        </div>
+    )}
+  </>
+);
