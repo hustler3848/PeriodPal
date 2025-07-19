@@ -2,6 +2,8 @@ import type {Metadata, Viewport} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
+import { Poppins, Inter } from 'next/font/google';
+import { BottomNav } from '@/components/bottom-nav';
 
 export const metadata: Metadata = {
   title: 'PeriodPal',
@@ -13,6 +15,17 @@ export const viewport: Viewport = {
   themeColor: '#F9E4E8',
 }
 
+const fontPoppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  variable: '--font-poppins',
+});
+
+const fontInter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -20,14 +33,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
-      </head>
-      <body className={cn("font-body antialiased", "min-h-screen bg-background font-sans")}>
-        <div className="relative flex min-h-dvh flex-col bg-background">
+      <body className={cn("font-body antialiased", fontPoppins.variable, fontInter.variable, "min-h-screen bg-background font-sans")}>
+        <div className="relative flex min-h-dvh flex-col bg-background pb-20 md:pb-0">
           <main className="flex-1">{children}</main>
+          <BottomNav />
         </div>
         <Toaster />
       </body>
