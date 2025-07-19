@@ -9,13 +9,13 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const TranslateInputSchema = z.object({
+const TranslateInputSchema = z.object({
   text: z.string(),
   language: z.string(),
 });
 export type TranslateInput = z.infer<typeof TranslateInputSchema>;
 
-export const TranslateOutputSchema = z.string();
+const TranslateOutputSchema = z.string();
 export type TranslateOutput = z.infer<typeof TranslateOutputSchema>;
 
 export async function translate(input: TranslateInput): Promise<TranslateOutput> {
