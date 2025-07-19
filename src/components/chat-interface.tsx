@@ -1,7 +1,7 @@
 
 'use client';
 
-import { answerMenstrualHealthQuestion } from '@/ai/flows/answer-menstrual-health-question';
+import { answerMenstrualHealthQuestion, AnswerMenstrualHealthQuestionInput, Message as AIMessage } from '@/ai/flows/answer-menstrual-health-question';
 import { translateText } from '@/ai/flows/translate-text';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -39,6 +39,7 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [language, setLanguage] = useState<string>('en');
   const [translatedFaqs, setTranslatedFaqs] = useState(faqs);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -114,7 +115,7 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
       recognitionRef.current.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
         setInput(transcript);
-        handleSubmit(undefined, transcript);
+        submitMessage(transcript);
         stopListening();
       };
 
@@ -170,7 +171,7 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading]);
+  }, [messages, isLoading, suggestedQuestions]);
 
   const handleFaqClick = async (faqIndex: number) => {
     if (isLoading) return;
@@ -178,30 +179,7 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
     const originalQuestion = faqs[faqIndex];
     const displayedQuestion = translatedFaqs[faqIndex];
 
-    // Add the user's message to the chat in the currently selected language
-    const newUserMessage: Message = { id: Date.now().toString(), text: displayedQuestion, sender: 'user' };
-    setMessages(prev => [...prev, newUserMessage]);
-    
-    setIsLoading(true);
-
-    try {
-      // The AI always gets the question in English
-      const result = await answerMenstrualHealthQuestion({ question: originalQuestion });
-      let answerInTargetLanguage = result.answer;
-
-      // Translate answer back to user's language if needed
-      if (language !== 'en') {
-        answerInTargetLanguage = (await translateText({ text: result.answer, targetLanguage: language })).translatedText;
-      }
-      
-      const aiMessage: Message = { id: (Date.now() + 1).toString(), text: answerInTargetLanguage, sender: 'ai' };
-      setMessages(prev => [...prev, aiMessage]);
-
-    } catch (error) {
-      handleChatError(error);
-    } finally {
-      setIsLoading(false);
-    }
+    submitMessage(displayedQuestion, originalQuestion);
   };
   
   const handleChatError = async (error: unknown) => {
@@ -222,10 +200,14 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
     setMessages(prev => [...prev, errorMessage]);
   }
 
-  const handleSubmit = async (e?: FormEvent<HTMLFormElement>, question?: string) => {
+  const handleSubmit = async (e?: FormEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
-    const userMessage = question || input;
-    if (!userMessage.trim()) return;
+    if (!input.trim()) return;
+    submitMessage(input);
+  };
+
+  const submitMessage = async (messageText: string, originalQuestionInEnglish?: string) => {
+    if (!messageText.trim()) return;
 
     if (!isOnline) {
        toast({
@@ -236,28 +218,62 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
         return;
     }
 
-    const newUserMessage: Message = { id: Date.now().toString(), text: userMessage, sender: 'user' };
-    setMessages(prev => [...prev, newUserMessage]);
+    const newUserMessage: Message = { id: Date.now().toString(), text: messageText, sender: 'user' };
+    
+    const currentMessages = [...messages, newUserMessage];
+    setMessages(currentMessages);
     setInput('');
     setIsLoading(true);
-
+    setSuggestedQuestions([]);
+    
     try {
       // 1. Translate user message to English if needed
-      const questionInEnglish = language === 'en'
-        ? userMessage
-        : (await translateText({ text: userMessage, targetLanguage: 'en' })).translatedText;
+      const questionInEnglish = originalQuestionInEnglish
+        ? originalQuestionInEnglish
+        : language === 'en'
+        ? messageText
+        : (await translateText({ text: messageText, targetLanguage: 'en' })).translatedText;
 
-      // 2. Get answer in English
-      const result = await answerMenstrualHealthQuestion({ question: questionInEnglish });
+      // 2. Prepare chat history for AI (in English)
+      const historyInEnglish: AIMessage[] = await Promise.all(
+        messages.map(async (msg): Promise<AIMessage> => {
+          if (msg.sender === 'user') {
+            const text = (language === 'en' || msg.text === originalQuestionInEnglish) 
+              ? msg.text 
+              : (await translateText({ text: msg.text, targetLanguage: 'en' })).translatedText;
+            return { role: 'user', content: text };
+          } else { // 'ai'
+            const text = (language === 'en')
+              ? msg.text
+              : (await translateText({ text: msg.text, targetLanguage: 'en' })).translatedText;
+            return { role: 'model', content: text };
+          }
+        })
+      );
+      
+      const aiInput: AnswerMenstrualHealthQuestionInput = {
+          question: questionInEnglish,
+          chatHistory: historyInEnglish,
+      }
+
+      // 3. Get answer and suggestions in English
+      const result = await answerMenstrualHealthQuestion(aiInput);
       let answerInTargetLanguage = result.answer;
+      let suggestionsInTargetLanguage = result.suggestedQuestions || [];
 
-      // 3. Translate answer back to user's language if needed
+      // 4. Translate answer and suggestions back to user's language if needed
       if (language !== 'en') {
         answerInTargetLanguage = (await translateText({ text: result.answer, targetLanguage: language })).translatedText;
+        if (result.suggestedQuestions) {
+            suggestionsInTargetLanguage = (await Promise.all(
+                result.suggestedQuestions.map(q => translateText({ text: q, targetLanguage: language }))
+            )).map(t => t.translatedText);
+        }
       }
       
       const aiMessage: Message = { id: (Date.now() + 1).toString(), text: answerInTargetLanguage, sender: 'ai' };
       setMessages(prev => [...prev, aiMessage]);
+      setSuggestedQuestions(suggestionsInTargetLanguage);
 
     } catch (error) {
       handleChatError(error);
@@ -370,6 +386,23 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
             </div>
           </div>
         )}
+        {!isLoading && suggestedQuestions.length > 0 && (
+             <div className="flex justify-end">
+                <div className="flex flex-col items-end gap-2">
+                    {suggestedQuestions.map((q, i) => (
+                        <Button
+                            key={i}
+                            variant="outline"
+                            size="sm"
+                            className="h-auto py-2"
+                            onClick={() => submitMessage(q)}
+                        >
+                            {q}
+                        </Button>
+                    ))}
+                </div>
+            </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
@@ -402,5 +435,3 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
     </div>
   );
 }
-
-    

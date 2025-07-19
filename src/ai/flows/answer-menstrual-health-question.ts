@@ -1,7 +1,8 @@
 'use server';
 
 /**
- * @fileOverview An AI agent that answers questions about menstrual health with empathy.
+ * @fileOverview An AI agent that answers questions about menstrual health with empathy
+ * and suggests follow-up questions.
  *
  * - answerMenstrualHealthQuestion - A function that handles the question answering process.
  * - AnswerMenstrualHealthQuestionInput - The input type for the answerMenstrualHealthQuestion function.
@@ -11,8 +12,14 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
+const MessageSchema = z.object({
+  role: z.enum(['user', 'model']),
+  content: z.string(),
+});
+
 const AnswerMenstrualHealthQuestionInputSchema = z.object({
-  question: z.string().describe('The question about menstrual health.'),
+  question: z.string().describe('The latest question about menstrual health.'),
+  chatHistory: z.array(MessageSchema).optional().describe('The history of the conversation so far.'),
 });
 export type AnswerMenstrualHealthQuestionInput = z.infer<
   typeof AnswerMenstrualHealthQuestionInputSchema
@@ -22,6 +29,7 @@ const AnswerMenstrualHealthQuestionOutputSchema = z.object({
   answer: z
     .string()
     .describe('The answer to the question about menstrual health.'),
+  suggestedQuestions: z.array(z.string()).optional().describe('A list of 2-3 suggested follow-up questions based on the conversation.')
 });
 export type AnswerMenstrualHealthQuestionOutput = z.infer<
   typeof AnswerMenstrualHealthQuestionOutputSchema
@@ -50,8 +58,19 @@ const prompt = ai.definePrompt({
 
   Always prioritize safety and advise users to consult a doctor for medical concerns.
 
-  Question: {{{question}}}
-  Answer: `,
+  Based on the conversation history below, answer the user's latest question. After providing the answer, generate 2-3 relevant follow-up questions a user might have.
+
+  {{#if chatHistory}}
+  Conversation History:
+  {{#each chatHistory}}
+  {{#if (eq this.role 'user')}}User: {{else}}AI: {{/if}}{{this.content}}
+  {{/each}}
+  {{/if}}
+
+  Latest Question: {{{question}}}
+
+  Respond with your answer and the suggested questions.
+  `,
 });
 
 const answerMenstrualHealthQuestionFlow = ai.defineFlow(
