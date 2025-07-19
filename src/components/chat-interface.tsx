@@ -1,6 +1,7 @@
 
 'use client';
 
+import { translate } from '@/ai/flows/translate-flow';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -30,6 +31,7 @@ export default function ChatInterface() {
   
   const [isListening, setIsListening] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
+  const [translatedFaqs, setTranslatedFaqs] = useState<string[]>([]);
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -122,7 +124,33 @@ export default function ChatInterface() {
     if (recognitionRef.current) {
         recognitionRef.current.lang = language;
     }
-  }, [language]);
+    // Translate FAQs when language changes
+    const translateFaqs = async () => {
+        if (language === 'en') {
+            setTranslatedFaqs(faqs);
+            return;
+        }
+        try {
+            const translated = await Promise.all(
+                faqs.map(faq => translate({ text: faq, language: language }))
+            );
+            setTranslatedFaqs(translated);
+        } catch (error) {
+            console.error("Failed to translate FAQs, falling back to English", error);
+            setTranslatedFaqs(faqs); // Fallback to English on error
+             toast({
+              variant: 'destructive',
+              title: 'Translation Error',
+              description: 'Could not translate suggestions. Please try again later.',
+            });
+        }
+    };
+    if (isInitialized && isOnline) {
+        translateFaqs();
+    } else {
+        setTranslatedFaqs(faqs); // Show default on offline
+    }
+  }, [language, isInitialized, isOnline, faqs, toast]);
 
 
   const startListening = () => {
@@ -190,7 +218,7 @@ export default function ChatInterface() {
             )}
             <h2 className="text-xl font-semibold mb-4 font-headline">Frequently Asked Questions</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {faqs.map((faq, index) => (
+            {translatedFaqs.map((faq, index) => (
                 <Button
                 key={index}
                 variant="outline"
