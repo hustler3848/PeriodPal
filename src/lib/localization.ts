@@ -9,12 +9,8 @@ type Myth = {
   reality: string;
 };
 
-type Localization = {
-  name: string;
-  languages: Language[];
-  faqs: string[];
-  myths: Myth[];
-  ui: {
+type UIText = {
+  [langCode: string]: {
     welcome: string;
     welcomeSubtitle: string;
     askAQuestion: string;
@@ -23,6 +19,14 @@ type Localization = {
     tipContent: string;
     mythBuster: string;
   }
+};
+
+type Localization = {
+  name: string;
+  languages: Language[];
+  faqs: string[];
+  myths: Myth[];
+  ui: UIText;
 };
 
 type Localizations = {
@@ -50,6 +54,7 @@ export const localizations: Localizations = {
       }
     ],
     ui: {
+      en: {
         welcome: "Welcome!",
         welcomeSubtitle: "Your friendly guide to menstrual health.",
         askAQuestion: "Ask a Question",
@@ -57,6 +62,7 @@ export const localizations: Localizations = {
         dailyTip: "Daily Tip",
         tipContent: "Staying hydrated can help ease menstrual cramps. Try drinking an extra glass or two of water today!",
         mythBuster: "Myth Buster"
+      }
     }
   },
   india: {
@@ -79,13 +85,24 @@ export const localizations: Localizations = {
       }
     ],
      ui: {
-        welcome: "Namaste!",
-        welcomeSubtitle: "Aapke masik swasthya ke liye aapka dost.",
-        askAQuestion: "Sawaal Pucho",
-        findFreeProducts: "Muft Products Dhundo",
-        dailyTip: "Aaj Ka Sujhav",
-        tipContent: "Hydrated rehna masik dharm ke dard ko kam karne mein madad kar sakta hai. Aaj ek ya do glass pani zyada peene ki koshish karein!",
-        mythBuster: "Galatfehmi Tod"
+        en: {
+            welcome: "Welcome!",
+            welcomeSubtitle: "Your friendly guide to menstrual health.",
+            askAQuestion: "Ask a Question",
+            findFreeProducts: "Find Free Products",
+            dailyTip: "Daily Tip",
+            tipContent: "Staying hydrated can help ease menstrual cramps. Try drinking an extra glass or two of water today!",
+            mythBuster: "Myth Buster"
+        },
+        hi: {
+            welcome: "नमस्ते!",
+            welcomeSubtitle: "मासिक धर्म स्वास्थ्य के लिए आपकी मैत्रीपूर्ण मार्गदर्शिका।",
+            askAQuestion: "प्रश्न पूछें",
+            findFreeProducts: "निःशुल्क उत्पाद ढूंढें",
+            dailyTip: "आज का सुझाव",
+            tipContent: "हाइड्रेटेड रहने से मासिक धर्म के दर्द को कम करने में मदद मिल सकती है। आज एक या दो गिलास अतिरिक्त पानी पीने का प्रयास करें!",
+            mythBuster: "मिथक भंजक"
+        }
     }
   },
   nepal: {
@@ -108,13 +125,24 @@ export const localizations: Localizations = {
       }
     ],
     ui: {
-        welcome: "Namaste!",
-        welcomeSubtitle: "Tapaiko masik s स्वास्थ्यको लागि tapainko mitratāpūrṇa mārganirdeśaka.",
-        askAQuestion: "Prashna Sodhnuhos",
-        findFreeProducts: "Nishulka Utpadanharu Bhetaunuhos",
-        dailyTip: "Dainik Sujhav",
-        tipContent: "Pani piirahanu mahināwārīkō peṭa dukha'ī kam garnamā maddata garna sakcha. Āja ēka vā du'ī gilāsa thapa pānī pi'unē prayāsa garnuhōs!",
-        mythBuster: "Bhramako Nivāraṇa"
+        en: {
+            welcome: "Welcome!",
+            welcomeSubtitle: "Your friendly guide to menstrual health.",
+            askAQuestion: "Ask a Question",
+            findFreeProducts: "Find Free Products",
+            dailyTip: "Daily Tip",
+            tipContent: "Staying hydrated can help ease menstrual cramps. Try drinking an extra glass or two of water today!",
+            mythBuster: "Myth Buster"
+        },
+        ne: {
+            welcome: "नमस्ते!",
+            welcomeSubtitle: "तपाईंको महिनावारी स्वास्थ्यको लागि तपाईंको मैत्रीपूर्ण गाइड।",
+            askAQuestion: "प्रश्न सोध्नुहोस्",
+            findFreeProducts: "नि: शुल्क उत्पादनहरू फेला पार्नुहोस्",
+            dailyTip: "दैनिक सुझाव",
+            tipContent: "हाइड्रेटेड रहँदा महिनावारीको दुखाइ कम गर्न मद्दत गर्दछ। आज एक वा दुई गिलास थप पानी पिउने प्रयास गर्नुहोस्!",
+            mythBuster: "मिथक बस्टर"
+        }
     }
   },
 };
