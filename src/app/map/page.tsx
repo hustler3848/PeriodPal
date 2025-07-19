@@ -89,8 +89,8 @@ export default function MapPage() {
         <div className="relative h-64 md:h-full">
             <MapPlaceholder />
         </div>
-        <div className="flex flex-col">
-            <div className="p-4 flex justify-between items-center border-b md:border-t-0">
+        <div className="flex flex-col overflow-hidden">
+            <div className="p-4 flex justify-between items-center border-b md:border-t-0 shrink-0">
                 <h2 className="text-lg font-semibold">
                     Locations ({filteredLocations.length})
                 </h2>
