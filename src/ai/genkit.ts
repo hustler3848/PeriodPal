@@ -1,5 +1,5 @@
 import {genkit} from 'genkit';
-import {googleAI} from '@gen-ai/google-ai';
+import {googleAI} from '@genkit-ai/googleai';
 import {defineDotprompt} from 'genkit/dotprompt';
 
 // NOTE: The `configureGenkit` function is deprecated in Genkit 1.x.
