@@ -2,7 +2,7 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { Heart, Home, MapPin, MessageCircle } from "lucide-react";
+import { Cog, Heart, Home, MapPin, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -10,11 +10,16 @@ const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/chat', label: 'Ask', icon: MessageCircle },
     { href: '/map', label: 'Map', icon: MapPin },
-    { href: '/privacy', label: 'Privacy', icon: Heart },
+    { href: '/settings', label: 'Settings', icon: Cog },
 ];
 
 export function BottomNav() {
     const pathname = usePathname();
+
+    // Do not render bottom nav on the privacy page
+    if (pathname === '/privacy') {
+        return null;
+    }
 
     return (
         <nav className="md:hidden fixed bottom-0 left-0 right-0 h-20 bg-background/95 backdrop-blur-sm border-t z-50">

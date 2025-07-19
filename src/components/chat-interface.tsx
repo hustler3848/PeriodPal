@@ -7,7 +7,9 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { useSettings } from '@/context/settings-provider';
 import { useToast } from '@/hooks/use-toast';
+import { localizations } from '@/lib/localization';
 import { cn } from '@/lib/utils';
 import { Globe, Heart, LoaderCircle, Mic, SendHorizonal, User } from 'lucide-react';
 import React, { FormEvent, useEffect, useRef, useState } from 'react';
@@ -30,15 +32,10 @@ const SpeechRecognition =
 
 const CHAT_STORAGE_KEY = 'periodpal-chat-history-v2';
 
-const languages = [
-  { value: 'en', label: 'English' },
-  { value: 'hi', label: 'हिन्दी' },
-];
-
-export default function ChatInterface({ faqs }: { faqs: string[] }) {
+export default function ChatInterface() {
+  const { region, language, setLanguage, isInitialized } = useSettings();
   const [messages, setMessages] = useState<Message[]>([]);
-  const [language, setLanguage] = useState<string>('en');
-  const [translatedFaqs, setTranslatedFaqs] = useState(faqs);
+  const [translatedFaqs, setTranslatedFaqs] = useState<string[]>([]);
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   
   const [input, setInput] = useState('');
@@ -50,52 +47,59 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  const faqs = localizations[region].faqs;
+  const languages = localizations[region].languages;
+
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && isInitialized) {
       try {
         const savedHistory = localStorage.getItem(CHAT_STORAGE_KEY);
         if (savedHistory) {
-          const { messages: savedMessages, language: savedLanguage } = JSON.parse(savedHistory) as ChatHistory;
+          const { messages: savedMessages } = JSON.parse(savedHistory) as ChatHistory;
           setMessages(savedMessages || []);
-          setLanguage(savedLanguage || 'en');
         }
       } catch (error) {
         console.error('Error reading chat history from localStorage', error);
       }
     }
-  }, []);
+  }, [isInitialized]);
 
   useEffect(() => {
-    try {
-      const chatHistory: ChatHistory = { messages, language };
-      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatHistory));
-    } catch (error) {
-      console.error('Error saving chat history to localStorage', error);
+    if (isInitialized) {
+      try {
+        const chatHistory: ChatHistory = { messages, language };
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(chatHistory));
+      } catch (error) {
+        console.error('Error saving chat history to localStorage', error);
+      }
     }
-  }, [messages, language]);
+  }, [messages, language, isInitialized]);
   
   useEffect(() => {
     const translateFaqs = async () => {
-      if (language === 'hi') {
+      if (!isInitialized) return;
+      
+      const currentFaqs = localizations[region].faqs;
+      if (language !== 'en') {
         setIsFaqLoading(true);
         try {
           const translated = await Promise.all(
-            faqs.map(faq => translateText({ text: faq, targetLanguage: 'hi' }))
+            currentFaqs.map(faq => translateText({ text: faq, targetLanguage: language }))
           );
           setTranslatedFaqs(translated.map(t => t.translatedText));
         } catch (error) {
             console.error('Error translating FAQs:', error);
-            setTranslatedFaqs(faqs); // Fallback to English if translation fails
+            setTranslatedFaqs(currentFaqs); // Fallback to English if translation fails
             toast({ variant: 'destructive', title: 'Translation Error', description: 'Could not translate FAQs.' });
         } finally {
             setIsFaqLoading(false);
         }
       } else {
-        setTranslatedFaqs(faqs);
+        setTranslatedFaqs(currentFaqs);
       }
     };
     translateFaqs();
-  }, [language, faqs, toast]);
+  }, [language, region, isInitialized, toast]);
 
   useEffect(() => {
     // Online/Offline detection
@@ -220,8 +224,7 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
 
     const newUserMessage: Message = { id: Date.now().toString(), text: messageText, sender: 'user' };
     
-    const currentMessages = [...messages, newUserMessage];
-    setMessages(currentMessages);
+    setMessages(prev => [...prev, newUserMessage]);
     setInput('');
     setIsLoading(true);
     setSuggestedQuestions([]);
@@ -254,6 +257,7 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
       const aiInput: AnswerMenstrualHealthQuestionInput = {
           question: questionInEnglish,
           chatHistory: historyInEnglish,
+          region: region,
       }
 
       // 3. Get answer and suggestions in English
@@ -282,15 +286,19 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
     }
   };
   
-  const handleLanguageChange = (value: string) => {
-    setLanguage(value);
-  };
+  if (!isInitialized) {
+    return (
+        <div className="flex items-center justify-center h-full">
+            <LoaderCircle className="w-8 h-8 animate-spin" />
+        </div>
+    )
+  }
 
   return (
     <div className="flex flex-col h-full max-w-3xl mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold font-headline">AI Assistant</h2>
-         <Select value={language} onValueChange={handleLanguageChange}>
+         <Select value={language} onValueChange={setLanguage}>
           <SelectTrigger className="w-auto gap-2">
             <Globe className="w-4 h-4" />
             <SelectValue placeholder="Language" />

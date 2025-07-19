@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -20,6 +21,7 @@ const MessageSchema = z.object({
 const AnswerMenstrualHealthQuestionInputSchema = z.object({
   question: z.string().describe('The latest question about menstrual health.'),
   chatHistory: z.array(MessageSchema).optional().describe('The history of the conversation so far.'),
+  region: z.string().optional().describe('The user\'s selected region (e.g., "india", "nepal", "usa") for culturally-sensitive responses.'),
 });
 export type AnswerMenstrualHealthQuestionInput = z.infer<
   typeof AnswerMenstrualHealthQuestionInputSchema
@@ -57,6 +59,10 @@ const prompt = ai.definePrompt({
   If a question is outside of this scope, or if you don't understand it, respond with: "I’m here to help! Sorry, I didn’t understand that. Try rephrasing or check our offline FAQ."
 
   Always prioritize safety and advise users to consult a doctor for medical concerns.
+
+  {{#if region}}
+  IMPORTANT: The user is from the '{{region}}' region. Adapt your tone, examples, and cultural references to be respectful and relevant to this region. Avoid making assumptions, but be mindful of potential cultural sensitivities or common local beliefs when framing your answer.
+  {{/if}}
 
   Based on the conversation history below, answer the user's latest question. After providing the answer, generate 2-3 relevant follow-up questions a user might have.
 

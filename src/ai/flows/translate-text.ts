@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -16,7 +17,7 @@ const TranslateTextInputSchema = z.object({
   targetLanguage: z
     .string()
     .describe(
-      'The target language for translation (e.g., "es" for Spanish, "fr" for French).'
+      'The target language for translation (e.g., "es" for Spanish, "fr" for French, "ne" for Nepali).'
     ),
 });
 export type TranslateTextInput = z.infer<typeof TranslateTextInputSchema>;
@@ -36,7 +37,6 @@ const prompt = ai.definePrompt({
   name: 'translateTextPrompt',
   input: { schema: TranslateTextInputSchema },
   output: { schema: TranslateTextOutputSchema },
-  // Using a more powerful model for better translation quality
   model: 'googleai/gemini-1.5-flash',
   prompt: `Translate the following text to {{targetLanguage}}.
 
@@ -54,8 +54,8 @@ const translateTextFlow = ai.defineFlow(
   },
   async (input) => {
     // If the input text is empty or the target language is English, no need to call the LLM
-    if (!input.text.trim()) {
-        return { translatedText: '' };
+    if (!input.text.trim() || input.targetLanguage === 'en') {
+        return { translatedText: input.text };
     }
     
     const { output } = await prompt(input);

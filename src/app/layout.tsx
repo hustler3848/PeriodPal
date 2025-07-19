@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { cn } from '@/lib/utils';
 import { Poppins, Inter } from 'next/font/google';
 import { BottomNav } from '@/components/bottom-nav';
+import { SettingsProvider } from '@/context/settings-provider';
 
 export const metadata: Metadata = {
   title: 'PeriodPal',
@@ -35,11 +36,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={cn("font-body antialiased", fontPoppins.variable, fontInter.variable, "min-h-screen bg-background font-sans")}>
-        <div className="relative flex min-h-dvh flex-col bg-background pb-20 md:pb-0">
-          <main className="flex-1">{children}</main>
-          <BottomNav />
-        </div>
-        <Toaster />
+        <SettingsProvider>
+          <div className="relative flex min-h-dvh flex-col bg-background pb-20 md:pb-0">
+            <main className="flex-1">{children}</main>
+            <BottomNav />
+          </div>
+          <Toaster />
+        </SettingsProvider>
       </body>
     </html>
   );

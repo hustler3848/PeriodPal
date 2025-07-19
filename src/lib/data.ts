@@ -1,3 +1,4 @@
+
 export type Location = {
   id: number;
   name: string;
@@ -40,11 +41,4 @@ export const locations: Location[] = [
     hours: 'Mon-Sat 8am-10pm',
     accessible: true,
   },
-];
-
-export const faqs = [
-  'What are common PMS symptoms?',
-  'How can I relieve period cramps?',
-  'Is my period cycle regular?',
-  'What is a menstrual cup?',
 ];
