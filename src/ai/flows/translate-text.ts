@@ -36,16 +36,14 @@ const prompt = ai.definePrompt({
   name: 'translateTextPrompt',
   input: { schema: TranslateTextInputSchema },
   output: { schema: TranslateTextOutputSchema },
+  // Using a more powerful model for better translation quality
+  model: 'googleai/gemini-1.5-flash',
   prompt: `Translate the following text to {{targetLanguage}}.
 
 Text: {{{text}}}
 
 Only output the translated text, with no additional commentary or explanation.
 `,
-  config: {
-    // Using a more powerful model for better translation quality
-    model: 'googleai/gemini-1.5-flash', 
-  }
 });
 
 const translateTextFlow = ai.defineFlow(
