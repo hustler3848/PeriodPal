@@ -1,3 +1,5 @@
+// This component is no longer used, but we'll keep it for now.
+// It has been replaced by the InteractiveMap component.
 import Image from "next/image";
 
 export function MapPlaceholder() {

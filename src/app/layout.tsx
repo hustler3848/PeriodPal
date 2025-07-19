@@ -6,6 +6,9 @@ import { Poppins, Inter } from 'next/font/google';
 import { BottomNav } from '@/components/bottom-nav';
 import { SettingsProvider } from '@/context/settings-provider';
 
+// This is required for react-leaflet to work
+import "leaflet/dist/leaflet.css";
+
 export const metadata: Metadata = {
   title: 'PeriodPal',
   description: 'Your friendly guide to menstrual health.',

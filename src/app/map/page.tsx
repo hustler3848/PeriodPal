@@ -3,7 +3,6 @@
 
 import { AppHeader } from "@/components/app-header";
 import { LocationCard } from "@/components/location-card";
-import { MapPlaceholder } from "@/components/map-placeholder";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -12,6 +11,8 @@ import { locations as allLocations, Location } from "@/lib/data";
 import { PlusCircle, Search } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import dynamic from "next/dynamic";
+import { LoaderCircle } from "lucide-react";
 
 const allProducts = Array.from(new Set(allLocations.flatMap(l => l.available_products)));
 
@@ -42,6 +43,10 @@ export default function MapPage() {
         });
     }, [searchTerm, selectedProducts, showAccessible]);
 
+    const Map = useMemo(() => dynamic(() => import('@/components/interactive-map'), { 
+      ssr: false,
+      loading: () => <div className="w-full h-full bg-muted flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin" /></div>
+    }), [])
 
   return (
     <div className="flex flex-col h-dvh">
@@ -87,7 +92,7 @@ export default function MapPage() {
       </div>
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         <div className="relative flex-shrink-0 h-64 md:h-full md:w-1/2">
-            <MapPlaceholder />
+            <Map locations={filteredLocations} />
         </div>
         <div className="flex-1 flex flex-col overflow-hidden">
             <div className="p-4 flex justify-between items-center border-b md:border-l md:border-t-0 shrink-0">
