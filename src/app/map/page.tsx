@@ -16,6 +16,11 @@ import { LoaderCircle } from "lucide-react";
 
 const allProducts = Array.from(new Set(allLocations.flatMap(l => l.available_products)));
 
+const Map = dynamic(() => import('@/components/interactive-map'), { 
+  ssr: false,
+  loading: () => <div className="w-full h-full bg-muted flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin" /></div>
+});
+
 export default function MapPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
@@ -42,11 +47,6 @@ export default function MapPage() {
             return matchesSearch && matchesProducts && matchesAccessibility;
         });
     }, [searchTerm, selectedProducts, showAccessible]);
-
-    const Map = useMemo(() => dynamic(() => import('@/components/interactive-map'), { 
-      ssr: false,
-      loading: () => <div className="w-full h-full bg-muted flex items-center justify-center"><LoaderCircle className="w-8 h-8 animate-spin" /></div>
-    }), [])
 
   return (
     <div className="flex flex-col h-dvh">
@@ -91,11 +91,11 @@ export default function MapPage() {
         </div>
       </div>
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
-        <div className="relative flex-shrink-0 h-64 md:h-full md:w-1/2">
+        <div className="relative h-64 md:h-auto md:flex-1">
             <Map locations={filteredLocations} />
         </div>
-        <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="p-4 flex justify-between items-center border-b md:border-l md:border-t-0 shrink-0">
+        <div className="flex-1 flex flex-col overflow-hidden md:max-w-sm lg:max-w-md border-t md:border-t-0 md:border-l">
+            <div className="p-4 flex justify-between items-center shrink-0">
                 <h2 className="text-lg font-semibold">
                     Locations ({filteredLocations.length})
                 </h2>
@@ -107,13 +107,13 @@ export default function MapPage() {
                 </Button>
             </div>
             {filteredLocations.length > 0 ? (
-                <div className="flex-1 overflow-y-auto p-2 space-y-2 md:border-l">
+                <div className="flex-1 overflow-y-auto p-2 space-y-2">
                     {filteredLocations.map((location: Location) => (
                         <LocationCard key={location.id} location={location} />
                     ))}
                 </div>
             ) : (
-                <div className="flex-1 flex items-center justify-center text-center p-8 md:border-l">
+                <div className="flex-1 flex items-center justify-center text-center p-8">
                     <p className="text-muted-foreground">
                         No locations match your filters. <br /> Try adjusting your search.
                     </p>
