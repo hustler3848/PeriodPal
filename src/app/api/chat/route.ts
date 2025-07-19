@@ -3,8 +3,9 @@ import {
   GoogleGenerativeAI,
   HarmCategory,
   HarmBlockThreshold,
+  GenerateContentRequest,
 } from '@google/generative-ai';
-import { GoogleAIStream, StreamingTextResponse } from 'ai';
+import { GoogleAIStream, StreamingTextResponse } from '@google/generative-ai/server-edge';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -48,13 +49,26 @@ export async function POST(req: Request) {
   IMPORTANT: The user is from the '${region}' region. Adapt your tone, examples, and cultural references to be respectful and relevant to this region. Avoid making assumptions, but be mindful of potential cultural sensitivities or common local beliefs when framing your answer.
   `;
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash', systemInstruction: system_prompt });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-  const stream = await model.generateContentStream({
-    contents: messages.map((m: any) => ({
+  // Prepend the system prompt to the user messages
+  const contents: GenerateContentRequest['contents'] = [
+    {
+      role: 'user',
+      parts: [{ text: system_prompt }],
+    },
+    {
+      role: 'model',
+      parts: [{ text: 'I am ready to help.' }],
+    },
+    ...messages.map((m: any) => ({
       role: m.role,
       parts: [{ text: m.content }],
-    })),
+    }))
+  ];
+
+  const stream = await model.generateContentStream({
+    contents,
     safetySettings,
   });
 
