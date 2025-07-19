@@ -181,8 +181,28 @@ export default function ChatInterface() {
   }, [messages, isLoading]);
 
   const handleFaqClick = async (faq: string) => {
-    if (isLoading) return;
-    setInput(faq);
+    if (isLoading || !isOnline) return;
+    
+    // Create a new user message object
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: faq,
+    };
+    
+    // Use the useChat hook's append function
+    setMessages([...messages, userMessage]);
+    handleSubmit(new Event('submit') as unknown as FormEvent<HTMLFormElement>, {
+        options: {
+            body: {
+                region,
+                // Pass the specific question in the request
+                // This will be added to the messages array by the useChat hook
+                messages: [userMessage],
+            }
+        }
+    });
+    setInput(''); // Clear input after sending
   };
   
   if (!isInitialized) {

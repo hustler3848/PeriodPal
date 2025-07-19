@@ -35,12 +35,9 @@ const translateFlow = ai.defineFlow(
         language,
         text,
       },
-      output: {
-        schema: z.string(),
-      },
     });
 
-    return llmResponse.output() ?? '';
+    return llmResponse.text ?? '';
   }
 );
 
