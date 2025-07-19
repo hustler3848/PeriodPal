@@ -20,8 +20,22 @@ const SpeechRecognition =
   (typeof window !== 'undefined' && window.SpeechRecognition) ||
   (typeof window !== 'undefined' && (window as any).webkitSpeechRecognition);
 
+const CHAT_STORAGE_KEY = 'periodpal-chat-history';
+
 export default function ChatInterface({ faqs }: { faqs: string[] }) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window === 'undefined') {
+      return [];
+    }
+    try {
+      const savedMessages = localStorage.getItem(CHAT_STORAGE_KEY);
+      return savedMessages ? JSON.parse(savedMessages) : [];
+    } catch (error) {
+      console.error('Error reading chat history from localStorage', error);
+      return [];
+    }
+  });
+
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -29,6 +43,14 @@ export default function ChatInterface({ faqs }: { faqs: string[] }) {
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    } catch (error) {
+      console.error('Error saving chat history to localStorage', error);
+    }
+  }, [messages]);
 
   useEffect(() => {
     // Online/Offline detection
