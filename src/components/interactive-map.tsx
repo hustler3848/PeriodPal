@@ -20,7 +20,7 @@ const defaultIcon = new L.Icon({
 L.Marker.prototype.options.icon = defaultIcon;
 
 // A custom component to automatically adjust the map view
-const MapUpdater = ({ locations }: { locations: Location[] }) => {
+function MapUpdater({ locations }: { locations: Location[] }) {
     const map = useMap();
     useEffect(() => {
         if (locations && locations.length > 0) {
@@ -35,10 +35,9 @@ const MapUpdater = ({ locations }: { locations: Location[] }) => {
 
 interface InteractiveMapProps {
     locations: Location[];
-    whenCreated: (map: L.Map) => void;
 }
 
-export default function InteractiveMap({ locations, whenCreated }: InteractiveMapProps) {
+export default function InteractiveMap({ locations }: InteractiveMapProps) {
     const defaultPosition: [number, number] = [27.7172, 85.3240]; // Default to Kathmandu
 
     return (
@@ -47,7 +46,6 @@ export default function InteractiveMap({ locations, whenCreated }: InteractiveMa
             zoom={12} 
             className="w-full h-full"
             scrollWheelZoom={false}
-            whenCreated={whenCreated}
         >
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

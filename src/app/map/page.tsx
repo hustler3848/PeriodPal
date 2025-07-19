@@ -12,7 +12,6 @@ import { PlusCircle, Search, LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
-import type { Map } from 'leaflet';
 
 const allProducts = Array.from(new Set(allLocations.flatMap(l => l.available_products)));
 
@@ -25,7 +24,6 @@ export default function MapPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [showAccessible, setShowAccessible] = useState(false);
-    const [map, setMap] = useState<Map | null>(null);
 
     const handleProductChange = (product: string) => {
         setSelectedProducts(prev => 
@@ -93,7 +91,7 @@ export default function MapPage() {
       </div>
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
         <div className="relative h-64 md:h-auto md:flex-1">
-            <InteractiveMap locations={filteredLocations} whenCreated={setMap} />
+            <InteractiveMap locations={filteredLocations} />
         </div>
         <div className="flex-1 flex flex-col overflow-hidden md:max-w-sm lg:max-w-md border-t md:border-t-0 md:border-l">
             <div className="p-4 flex justify-between items-center shrink-0">
