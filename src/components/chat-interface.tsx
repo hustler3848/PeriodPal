@@ -323,31 +323,33 @@ export default function ChatInterface() {
         </div>
       </ScrollArea>
 
-      <form onSubmit={handleLocalSubmit} className="mt-auto flex items-center gap-2 border-t p-4 bg-background">
-        <Textarea
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder={isListening ? "Listening..." : "Ask about menstrual health..."}
-          className="flex-1 resize-none rounded-full"
-          rows={1}
-          onKeyDown={e => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              handleLocalSubmit(e as any);
-            }
-          }}
-          disabled={isLoading}
-        />
-        {SpeechRecognition && (
-            <Button type="button" size="icon" variant={isListening ? "destructive" : "secondary"} className="rounded-full w-10 h-10" onClick={isListening ? stopListening : startListening} disabled={isLoading}>
-                <Mic className="h-5 w-5" />
-                <span className="sr-only">{isListening ? "Stop listening" : "Start listening"}</span>
+      <form onSubmit={handleLocalSubmit} className="mt-auto flex items-end gap-2 border-t p-4 bg-background">
+        <div className="flex-1 flex items-end gap-2 border rounded-xl px-2 py-1 shadow-sm">
+            <Textarea
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                placeholder={isListening ? "Listening..." : "Ask about menstrual health..."}
+                className="flex-1 resize-none border-0 shadow-none focus-visible:ring-0"
+                rows={1}
+                onKeyDown={e => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleLocalSubmit(e as any);
+                    }
+                }}
+                disabled={isLoading}
+            />
+            {SpeechRecognition && (
+                <Button type="button" size="icon" variant={isListening ? "destructive" : "ghost"} className="rounded-full w-10 h-10 shrink-0" onClick={isListening ? stopListening : startListening} disabled={isLoading}>
+                    <Mic className="h-5 w-5" />
+                    <span className="sr-only">{isListening ? "Stop listening" : "Start listening"}</span>
+                </Button>
+            )}
+            <Button type="submit" size="icon" className="rounded-full w-10 h-10 shrink-0" disabled={isLoading || !input.trim()}>
+                <SendHorizonal className="h-5 w-5" />
+                <span className="sr-only">Send</span>
             </Button>
-        )}
-        <Button type="submit" size="icon" className="rounded-full w-10 h-10" disabled={isLoading || !input.trim()}>
-          <SendHorizonal className="h-5 w-5" />
-          <span className="sr-only">Send</span>
-        </Button>
+        </div>
       </form>
     </div>
   );
