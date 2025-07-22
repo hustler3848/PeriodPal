@@ -1,3 +1,6 @@
+
+'use server';
+
 /**
  * @fileOverview A flow that translates text to a specified language.
  *

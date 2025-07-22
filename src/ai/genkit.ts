@@ -1,6 +1,7 @@
 /**
  * @fileoverview This file initializes the Genkit AI platform.
  */
+import 'dotenv/config';
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
 
