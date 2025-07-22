@@ -2,11 +2,13 @@
 'use client';
 
 import { AppHeader } from "@/components/app-header";
+import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSettings } from "@/context/settings-provider";
 import { localizations } from "@/lib/localization";
-import { ShieldQuestion } from "lucide-react";
+import { MessageSquarePlus, ShieldQuestion } from "lucide-react";
+import Link from "next/link";
 
 export default function HelpPage() {
     const { region, isInitialized } = useSettings();
@@ -42,6 +44,22 @@ export default function HelpPage() {
                                 </AccordionItem>
                             ))}
                         </Accordion>
+                    </CardContent>
+                </Card>
+
+                <Card className="max-w-3xl mx-auto mt-8">
+                     <CardHeader>
+                        <CardTitle className="font-headline text-2xl flex items-center gap-2">
+                            <MessageSquarePlus className="w-7 h-7" /> Have a Different Question?
+                        </CardTitle>
+                        <CardDescription>
+                           If you can't find your answer, ask us directly! We'll use your questions to improve our AI assistant.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Button asChild>
+                            <Link href="/help/ask">Ask a Question</Link>
+                        </Button>
                     </CardContent>
                 </Card>
 
