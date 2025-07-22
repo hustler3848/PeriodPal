@@ -215,8 +215,8 @@ export default function ChatInterface() {
   }
 
   return (
-    <div className="flex flex-col h-full max-w-3xl mx-auto p-4">
-      <div className="flex justify-end items-center mb-4">
+    <div className="flex flex-col h-full max-w-3xl mx-auto">
+      <div className="flex justify-end items-center mb-4 px-4 pt-4">
          <Select value={language} onValueChange={setLanguage}>
           <SelectTrigger className="w-auto gap-2">
             <Globe className="w-4 h-4" />
@@ -231,78 +231,78 @@ export default function ChatInterface() {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex-1 space-y-6 overflow-y-auto pb-4">
-        {messages.length === 0 && (
-          <div className="text-center p-4">
-            {!isOnline && (
-                 <div className="mb-4 p-3 bg-destructive/10 text-destructive rounded-lg">
-                    <p className="font-semibold">You are currently offline.</p>
-                    <p className="text-sm">The AI chat is disabled, but you can still view common questions.</p>
-                 </div>
+      <ScrollArea className="flex-1">
+        <div className="px-4 pb-4">
+            {messages.length === 0 && (
+            <div className="text-center">
+                {!isOnline && (
+                    <div className="mb-4 p-3 bg-destructive/10 text-destructive rounded-lg">
+                        <p className="font-semibold">You are currently offline.</p>
+                        <p className="text-sm">The AI chat is disabled, but you can still view common questions.</p>
+                    </div>
+                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {translatedFaqs.map((faq, index) => (
+                    <Button
+                    key={index}
+                    variant="outline"
+                    className="p-4 h-auto text-left justify-start text-base whitespace-normal"
+                    onClick={() => handleFaqClick(faq)}
+                    disabled={!isOnline || isLoading}
+                    >
+                    {faq}
+                    </Button>
+                ))}
+                </div>
+            </div>
             )}
-            <h2 className="text-xl font-semibold mb-4 font-headline">Frequently Asked Questions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {translatedFaqs.map((faq, index) => (
-                <Button
-                key={index}
-                variant="outline"
-                className="p-4 h-auto text-left justify-start text-base whitespace-normal"
-                onClick={() => handleFaqClick(faq)}
-                disabled={!isOnline || isLoading}
+        
+            {messages.map(message => (
+                <div
+                key={message.id}
+                className={cn('flex items-start gap-3 py-4', { 'justify-end': message.role === 'user' })}
                 >
-                {faq}
-                </Button>
+                {message.role === 'assistant' && (
+                    <Avatar className="w-9 h-9 border-2 border-primary">
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                        <Heart className="w-5 h-5" />
+                    </AvatarFallback>
+                    </Avatar>
+                )}
+                <div
+                    className={cn('max-w-xs md:max-w-md lg:max-w-lg rounded-2xl p-3.5 shadow', {
+                    'bg-primary text-primary-foreground rounded-br-none': message.role === 'user',
+                    'bg-card text-card-foreground rounded-bl-none': message.role === 'assistant',
+                    })}
+                >
+                    <p className="whitespace-pre-wrap text-base">{message.content}</p>
+                </div>
+                {message.role === 'user' && (
+                    <Avatar className="w-9 h-9 border">
+                    <AvatarFallback>
+                        <User className="w-5 h-5" />
+                    </AvatarFallback>
+                    </Avatar>
+                )}
+                </div>
             ))}
-            </div>
-          </div>
-        )}
-        <ScrollArea className="h-full">
-          {messages.map(message => (
-            <div
-              key={message.id}
-              className={cn('flex items-start gap-3 p-4', { 'justify-end': message.role === 'user' })}
-            >
-              {message.role === 'assistant' && (
+            {isLoading && messages[messages.length -1]?.role === 'user' && (
+                <div className="flex items-start gap-3 py-4">
                 <Avatar className="w-9 h-9 border-2 border-primary">
-                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    <AvatarFallback className="bg-primary text-primary-foreground">
                     <Heart className="w-5 h-5" />
-                  </AvatarFallback>
+                    </AvatarFallback>
                 </Avatar>
-              )}
-              <div
-                className={cn('max-w-xs md:max-w-md lg:max-w-lg rounded-2xl p-3.5 shadow', {
-                  'bg-primary text-primary-foreground rounded-br-none': message.role === 'user',
-                  'bg-card text-card-foreground rounded-bl-none': message.role === 'assistant',
-                })}
-              >
-                <p className="whitespace-pre-wrap text-base">{message.content}</p>
-              </div>
-              {message.role === 'user' && (
-                <Avatar className="w-9 h-9 border">
-                  <AvatarFallback>
-                    <User className="w-5 h-5" />
-                  </AvatarFallback>
-                </Avatar>
-              )}
-            </div>
-          ))}
-          {isLoading && messages[messages.length -1]?.role === 'user' && (
-            <div className="flex items-start gap-3 p-4">
-              <Avatar className="w-9 h-9 border-2 border-primary">
-                <AvatarFallback className="bg-primary text-primary-foreground">
-                  <Heart className="w-5 h-5" />
-                </AvatarFallback>
-              </Avatar>
-              <div className="bg-card text-card-foreground rounded-2xl rounded-bl-none p-3.5 shadow">
-                <LoaderCircle className="w-5 h-5 animate-spin" />
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </ScrollArea>
-      </div>
+                <div className="bg-card text-card-foreground rounded-2xl rounded-bl-none p-3.5 shadow">
+                    <LoaderCircle className="w-5 h-5 animate-spin" />
+                </div>
+                </div>
+            )}
+            <div ref={messagesEndRef} />
+        </div>
+      </ScrollArea>
 
-      <form onSubmit={handleSubmit} className="mt-auto flex items-center gap-2 border-t pt-4 bg-background">
+      <form onSubmit={handleSubmit} className="mt-auto flex items-center gap-2 border-t p-4 bg-background">
         <Textarea
           value={input}
           onChange={e => setInput(e.target.value)}
@@ -331,5 +331,3 @@ export default function ChatInterface() {
     </div>
   );
 }
-
-    
