@@ -1,3 +1,4 @@
+
 import {
   GoogleGenerativeAI,
   HarmCategory,
@@ -11,7 +12,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 export const runtime = 'edge';
 
 // Converts the Vercel AI SDK message history to the format expected by the Google Generative AI SDK
-const buildGoogleGenAIPrompt = (messages: Message[]): Content[] => {
+const buildHistory = (messages: Message[]): Content[] => {
   return messages
     .filter(
       (message) => message.role === 'user' || message.role === 'assistant'
@@ -76,6 +77,9 @@ export async function POST(req: Request) {
         threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
       },
     ];
+    
+    // Get the chat history, excluding the last user message
+    const history = buildHistory(messages.slice(0, -1));
 
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-1.5-flash', 
@@ -83,12 +87,11 @@ export async function POST(req: Request) {
       systemInstruction: system_prompt,
     });
 
-    const chatHistory = buildGoogleGenAIPrompt(messages.slice(0, -1));
+    const chat = model.startChat({
+        history: history,
+    });
     
-    const stream = await model.generateContentStream([
-        ...chatHistory,
-        { role: 'user', parts: [{ text: lastMessage.content }] },
-    ]);
+    const stream = await chat.sendMessageStream(lastMessage.content);
     
     const googleStream = GoogleGenerativeAIStream(stream);
 
