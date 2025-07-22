@@ -9,10 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { locations as allLocations, Location } from "@/lib/data";
-import { PlusCircle, Search, LoaderCircle, List, Map } from "lucide-react";
+import { PlusCircle, Search, LoaderCircle, List, Map, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import dynamic from "next/dynamic";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 const allProducts = Array.from(new Set(allLocations.flatMap(l => l.available_products)));
 
@@ -25,6 +27,7 @@ export default function MapPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [showAccessible, setShowAccessible] = useState(false);
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
     const handleProductChange = (product: string) => {
         setSelectedProducts(prev => 
@@ -53,17 +56,27 @@ export default function MapPage() {
       <AppHeader title="Free Product Locator" />
       
       {/* Filters Section */}
-      <div className="flex-shrink-0 p-4 border-b">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input 
-            placeholder="Search by address or name" 
-            className="pl-10"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <div className="space-y-4 mt-4">
+      <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen} className="border-b">
+        <div className="p-4 flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input 
+                placeholder="Search by address or name" 
+                className="pl-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+             <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="icon" className="md:hidden ml-2">
+                  <SlidersHorizontal className="h-5 w-5" />
+                  <span className="sr-only">Toggle filters</span>
+                </Button>
+            </CollapsibleTrigger>
+          </div>
+          
+          <CollapsibleContent className={cn("space-y-4", { 'hidden md:block': !isFiltersOpen })}>
             <div>
                 <Label className="text-sm font-semibold">Product Type</Label>
                 <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2">
@@ -90,8 +103,9 @@ export default function MapPage() {
                     <Label htmlFor="accessible" className="font-normal text-sm">Wheelchair Accessible</Label>
                 </div>
             </div>
+          </CollapsibleContent>
         </div>
-      </div>
+      </Collapsible>
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
