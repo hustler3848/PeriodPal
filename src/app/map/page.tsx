@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { locations as allLocations, Location } from "@/lib/data";
 import { PlusCircle, Search, LoaderCircle, List, Map, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -28,6 +28,16 @@ export default function MapPage() {
     const [showAccessible, setShowAccessible] = useState(false);
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('list');
+
+    useEffect(() => {
+        if (activeTab === 'map') {
+            // Give the browser a moment to make the map container visible
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 100);
+        }
+    }, [activeTab]);
+
 
     const handleProductChange = (product: string) => {
         setSelectedProducts(prev => 
@@ -121,7 +131,7 @@ export default function MapPage() {
           </TabsContent>
 
           <TabsContent value="map" className="flex-1">
-              {activeTab === 'map' && <InteractiveMap locations={filteredLocations} />}
+              <InteractiveMap locations={filteredLocations} />
           </TabsContent>
         </Tabs>
       </div>
