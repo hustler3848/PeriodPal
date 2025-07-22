@@ -1,7 +1,7 @@
 
 'use client';
 
-import { translate } from '@/ai/flows/translate-flow';
+import { translate } from '@/app/actions';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
