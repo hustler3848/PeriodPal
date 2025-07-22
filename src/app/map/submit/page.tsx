@@ -51,7 +51,7 @@ export default function SubmitLocationPage() {
 
     return (
         <div className="flex flex-col min-h-dvh">
-            <AppHeader title="Suggest a Location" />
+            <AppHeader title="Suggest a Location" backButton={true} />
             <main className="flex-1 p-4 sm:p-6 md:p-8">
                 <Card className="max-w-2xl mx-auto">
                     <CardHeader>

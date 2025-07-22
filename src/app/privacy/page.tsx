@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 export default function PrivacyPage() {
   return (
     <div className="flex flex-col min-h-dvh">
-      <AppHeader title="Privacy Notice" />
+      <AppHeader title="Privacy Notice" backButton={true} />
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         <Card className="max-w-4xl mx-auto">
           <CardHeader>

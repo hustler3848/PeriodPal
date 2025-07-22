@@ -215,8 +215,7 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full max-w-3xl mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold font-headline">AI Assistant</h2>
+      <div className="flex justify-end items-center mb-4">
          <Select value={language} onValueChange={setLanguage}>
           <SelectTrigger className="w-auto gap-2">
             <Globe className="w-4 h-4" />
