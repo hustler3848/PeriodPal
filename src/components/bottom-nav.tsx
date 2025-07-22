@@ -2,7 +2,7 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { Cog, Heart, Home, MapPin, MessageCircle } from "lucide-react";
+import { Cog, Home, MapPin, MessageCircle, ShieldQuestion } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -10,6 +10,7 @@ const navItems = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/chat', label: 'Ask', icon: MessageCircle },
     { href: '/map', label: 'Map', icon: MapPin },
+    { href: '/help', label: 'Help', icon: ShieldQuestion },
     { href: '/settings', label: 'Settings', icon: Cog },
 ];
 
@@ -27,9 +28,9 @@ export function BottomNav() {
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     return (
-                        <Link key={item.href} href={item.href} className="flex flex-col items-center justify-center gap-1 w-20 h-full">
+                        <Link key={item.href} href={item.href} className="flex flex-col items-center justify-center gap-1 w-16 h-full">
                             <item.icon className={cn(
-                                "w-7 h-7 transition-colors",
+                                "w-6 h-6 transition-colors",
                                 isActive ? "text-primary" : "text-muted-foreground"
                             )} />
                             <span className={cn(

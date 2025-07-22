@@ -14,6 +14,7 @@ import { Globe, Heart, LoaderCircle, Mic, SendHorizonal, User } from 'lucide-rea
 import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import { useChat, type Message } from 'ai/react';
 import { ScrollArea } from './ui/scroll-area';
+import { useRouter } from 'next/navigation';
 
 interface ChatHistory {
   messages: Message[];
@@ -36,6 +37,7 @@ export default function ChatInterface() {
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   const { messages, setMessages, input, setInput, handleSubmit, isLoading } = useChat({
       api: '/api/chat',
@@ -79,7 +81,14 @@ export default function ChatInterface() {
   useEffect(() => {
     // Online/Offline detection
     const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOffline = () => {
+        setIsOnline(false);
+        toast({
+            variant: 'destructive',
+            title: 'You are offline',
+            description: 'The AI chat is disabled. You can view FAQs in the Help section.',
+        })
+    };
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
     setIsOnline(navigator.onLine);
@@ -181,29 +190,47 @@ export default function ChatInterface() {
     scrollToBottom();
   }, [messages, isLoading]);
 
+  const handleLocalSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!isOnline) {
+      toast({
+        variant: 'destructive',
+        title: 'You are offline',
+        description: "Please check your connection. In the meantime, you can find answers in the 'Help' section.",
+        duration: 5000,
+      });
+      router.push('/help');
+      return;
+    }
+    handleSubmit(e);
+  };
+
   const handleFaqClick = async (faq: string) => {
-    if (isLoading || !isOnline) return;
+    if (isLoading || !isOnline) {
+         toast({
+            variant: 'destructive',
+            title: 'You are offline',
+            description: "Please check your connection to chat with the AI.",
+        });
+        return;
+    };
     
-    // Create a new user message object
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
       content: faq,
     };
     
-    // Use the useChat hook's append function
     setMessages([...messages, userMessage]);
     handleSubmit(new Event('submit') as unknown as FormEvent<HTMLFormElement>, {
         options: {
             body: {
                 region,
-                // Pass the specific question in the request
-                // This will be added to the messages array by the useChat hook
                 messages: [userMessage],
             }
         }
     });
-    setInput(''); // Clear input after sending
+    setInput('');
   };
   
   if (!isInitialized) {
@@ -235,12 +262,6 @@ export default function ChatInterface() {
         <div className="px-4 pb-4">
             {messages.length === 0 && (
             <div className="text-center">
-                {!isOnline && (
-                    <div className="mb-4 p-3 bg-destructive/10 text-destructive rounded-lg">
-                        <p className="font-semibold">You are currently offline.</p>
-                        <p className="text-sm">The AI chat is disabled, but you can still view common questions.</p>
-                    </div>
-                )}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {translatedFaqs.map((faq, index) => (
                     <Button
@@ -248,7 +269,7 @@ export default function ChatInterface() {
                     variant="outline"
                     className="p-4 h-auto text-left justify-start text-base whitespace-normal"
                     onClick={() => handleFaqClick(faq)}
-                    disabled={!isOnline || isLoading}
+                    disabled={isLoading}
                     >
                     {faq}
                     </Button>
@@ -302,7 +323,7 @@ export default function ChatInterface() {
         </div>
       </ScrollArea>
 
-      <form onSubmit={handleSubmit} className="mt-auto flex items-center gap-2 border-t p-4 bg-background">
+      <form onSubmit={handleLocalSubmit} className="mt-auto flex items-center gap-2 border-t p-4 bg-background">
         <Textarea
           value={input}
           onChange={e => setInput(e.target.value)}
@@ -312,18 +333,18 @@ export default function ChatInterface() {
           onKeyDown={e => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              handleSubmit(e as any);
+              handleLocalSubmit(e as any);
             }
           }}
-          disabled={isLoading || !isOnline}
+          disabled={isLoading}
         />
         {SpeechRecognition && (
-            <Button type="button" size="icon" variant={isListening ? "destructive" : "secondary"} className="rounded-full w-10 h-10" onClick={isListening ? stopListening : startListening} disabled={isLoading || !isOnline}>
+            <Button type="button" size="icon" variant={isListening ? "destructive" : "secondary"} className="rounded-full w-10 h-10" onClick={isListening ? stopListening : startListening} disabled={isLoading}>
                 <Mic className="h-5 w-5" />
                 <span className="sr-only">{isListening ? "Stop listening" : "Start listening"}</span>
             </Button>
         )}
-        <Button type="submit" size="icon" className="rounded-full w-10 h-10" disabled={isLoading || !input.trim() || !isOnline}>
+        <Button type="submit" size="icon" className="rounded-full w-10 h-10" disabled={isLoading || !input.trim()}>
           <SendHorizonal className="h-5 w-5" />
           <span className="sr-only">Send</span>
         </Button>
