@@ -9,6 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
+import { googleAI } from '@genkit-ai/googleai';
 
 export const TranslateInputSchema = z.object({
   text: z.string(),
@@ -41,7 +42,13 @@ const translateFlow = ai.defineFlow(
     outputSchema: TranslateOutputSchema,
   },
   async (input) => {
-    const llmResponse = await translatePrompt(input);
+    const llmResponse = await ai.generate({
+        model: googleAI('gemini-1.5-flash'),
+        prompt: `Translate the following text to ${input.language}: ${input.text}`,
+        output: {
+            schema: TranslateOutputSchema
+        }
+    });
     return llmResponse.output ?? '';
   }
 );
