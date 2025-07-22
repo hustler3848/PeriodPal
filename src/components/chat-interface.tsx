@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { Globe, Heart, LoaderCircle, Mic, SendHorizonal, User } from 'lucide-react';
 import React, { FormEvent, useEffect, useRef, useState } from 'react';
 import { useChat, type Message } from 'ai/react';
+import { ScrollArea } from './ui/scroll-area';
 
 interface ChatHistory {
   messages: Message[];
@@ -230,9 +231,9 @@ export default function ChatInterface() {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex-1 space-y-6 overflow-y-auto pr-2 pb-4">
+      <div className="flex-1 space-y-6 overflow-y-auto pb-4">
         {messages.length === 0 && (
-          <div className="text-center p-8">
+          <div className="text-center p-4">
             {!isOnline && (
                  <div className="mb-4 p-3 bg-destructive/10 text-destructive rounded-lg">
                     <p className="font-semibold">You are currently offline.</p>
@@ -245,7 +246,7 @@ export default function ChatInterface() {
                 <Button
                 key={index}
                 variant="outline"
-                className="p-4 h-auto text-left justify-start text-base"
+                className="p-4 h-auto text-left justify-start text-base whitespace-normal"
                 onClick={() => handleFaqClick(faq)}
                 disabled={!isOnline || isLoading}
                 >
@@ -255,48 +256,50 @@ export default function ChatInterface() {
             </div>
           </div>
         )}
-        {messages.map(message => (
-          <div
-            key={message.id}
-            className={cn('flex items-start gap-3', { 'justify-end': message.role === 'user' })}
-          >
-            {message.role === 'assistant' && (
+        <ScrollArea className="h-full">
+          {messages.map(message => (
+            <div
+              key={message.id}
+              className={cn('flex items-start gap-3 p-4', { 'justify-end': message.role === 'user' })}
+            >
+              {message.role === 'assistant' && (
+                <Avatar className="w-9 h-9 border-2 border-primary">
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    <Heart className="w-5 h-5" />
+                  </AvatarFallback>
+                </Avatar>
+              )}
+              <div
+                className={cn('max-w-xs md:max-w-md lg:max-w-lg rounded-2xl p-3.5 shadow', {
+                  'bg-primary text-primary-foreground rounded-br-none': message.role === 'user',
+                  'bg-card text-card-foreground rounded-bl-none': message.role === 'assistant',
+                })}
+              >
+                <p className="whitespace-pre-wrap text-base">{message.content}</p>
+              </div>
+              {message.role === 'user' && (
+                <Avatar className="w-9 h-9 border">
+                  <AvatarFallback>
+                    <User className="w-5 h-5" />
+                  </AvatarFallback>
+                </Avatar>
+              )}
+            </div>
+          ))}
+          {isLoading && messages[messages.length -1]?.role === 'user' && (
+            <div className="flex items-start gap-3 p-4">
               <Avatar className="w-9 h-9 border-2 border-primary">
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   <Heart className="w-5 h-5" />
                 </AvatarFallback>
               </Avatar>
-            )}
-            <div
-              className={cn('max-w-xs md:max-w-md lg:max-w-lg rounded-2xl p-3.5 shadow', {
-                'bg-primary text-primary-foreground rounded-br-none': message.role === 'user',
-                'bg-card text-card-foreground rounded-bl-none': message.role === 'assistant',
-              })}
-            >
-              <p className="whitespace-pre-wrap text-base">{message.content}</p>
+              <div className="bg-card text-card-foreground rounded-2xl rounded-bl-none p-3.5 shadow">
+                <LoaderCircle className="w-5 h-5 animate-spin" />
+              </div>
             </div>
-            {message.role === 'user' && (
-              <Avatar className="w-9 h-9 border">
-                <AvatarFallback>
-                  <User className="w-5 h-5" />
-                </AvatarFallback>
-              </Avatar>
-            )}
-          </div>
-        ))}
-        {isLoading && messages[messages.length -1]?.role === 'user' && (
-          <div className="flex items-start gap-3">
-            <Avatar className="w-9 h-9 border-2 border-primary">
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                <Heart className="w-5 h-5" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="bg-card text-card-foreground rounded-2xl rounded-bl-none p-3.5 shadow">
-              <LoaderCircle className="w-5 h-5 animate-spin" />
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
+          )}
+          <div ref={messagesEndRef} />
+        </ScrollArea>
       </div>
 
       <form onSubmit={handleSubmit} className="mt-auto flex items-center gap-2 border-t pt-4 bg-background">
@@ -328,3 +331,5 @@ export default function ChatInterface() {
     </div>
   );
 }
+
+    

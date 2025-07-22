@@ -1,5 +1,5 @@
-import { AppHeader } from "@/components/app-header";
 import ChatInterface from "@/components/chat-interface";
+import { AppHeader } from "@/components/app-header";
 
 export default function ChatPage() {
   return (
@@ -11,3 +11,5 @@ export default function ChatPage() {
     </div>
   );
 }
+
+    
