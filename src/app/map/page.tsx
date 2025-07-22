@@ -52,11 +52,11 @@ export default function MapPage() {
     }, [searchTerm, selectedProducts, showAccessible]);
 
   return (
-    <div className="flex flex-col h-dvh bg-background">
+    <div className="flex flex-col min-h-dvh bg-background">
       <AppHeader title="Free Product Locator" />
       
       {/* Filters Section */}
-      <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen} className="border-b">
+      <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen} className="border-b sticky top-16 z-10 bg-background/95 backdrop-blur-sm">
         <div className="p-4 flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="relative flex-1">
@@ -76,7 +76,7 @@ export default function MapPage() {
             </CollapsibleTrigger>
           </div>
           
-          <CollapsibleContent className={cn("space-y-4", { 'hidden md:block': !isFiltersOpen })}>
+          <CollapsibleContent className="space-y-4 data-[state=closed]:hidden data-[state=closed]:md:block">
             <div>
                 <Label className="text-sm font-semibold">Product Type</Label>
                 <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2">
@@ -108,31 +108,31 @@ export default function MapPage() {
       </Collapsible>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <div className="flex md:flex-row">
         
         {/* Desktop: Map View */}
-        <div className="relative hidden md:block md:w-1/2 lg:w-2/3 h-full">
+        <div className="relative hidden md:block md:w-1/2 lg:w-2/3 h-[calc(100dvh-4rem)] md:sticky md:top-16">
             <InteractiveMap locations={filteredLocations} />
         </div>
 
         {/* Mobile: Tabbed View */}
-        <div className="flex-1 flex flex-col md:hidden overflow-hidden">
-          <Tabs defaultValue="list" className="flex-1 flex flex-col overflow-hidden">
-            <TabsList className="grid w-full grid-cols-2 m-2 mb-0">
+        <div className="w-full md:hidden">
+          <Tabs defaultValue="list" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 sticky top-40 z-10 rounded-none border-b">
               <TabsTrigger value="list"><List className="mr-2 h-4 w-4" />List View</TabsTrigger>
               <TabsTrigger value="map"><Map className="mr-2 h-4 w-4" />Map View</TabsTrigger>
             </TabsList>
-            <TabsContent value="list" className="flex-1 flex flex-col overflow-y-auto mt-0">
+            <TabsContent value="list">
               <LocationListContent locations={filteredLocations} />
             </TabsContent>
-            <TabsContent value="map" className="flex-1 bg-muted mt-2">
+            <TabsContent value="map" className="h-[50dvh] w-full">
                <InteractiveMap locations={filteredLocations} />
             </TabsContent>
           </Tabs>
         </div>
 
         {/* Desktop: List View */}
-        <div className="hidden md:flex md:flex-col md:w-1/2 lg:w-1/3 border-l overflow-hidden">
+        <div className="hidden md:block md:w-1/2 lg:w-1/3 border-l">
            <LocationListContent locations={filteredLocations} />
         </div>
       </div>
@@ -144,8 +144,8 @@ export default function MapPage() {
 // Helper component for the location list content to avoid duplication
 const LocationListContent = ({ locations }: { locations: Location[] }) => (
   <>
-    <div className="p-4 flex justify-between items-center shrink-0 border-b">
-        <h2 className="text-base md:text-lg font-semibold">
+    <div className="p-4 flex justify-between items-center shrink-0 border-b bg-background sticky top-[13.5rem] md:top-16 z-10">
+        <h2 className="text-sm md:text-lg font-semibold">
             Locations ({locations.length})
         </h2>
         <Button asChild variant="outline" size="sm">
@@ -156,14 +156,14 @@ const LocationListContent = ({ locations }: { locations: Location[] }) => (
         </Button>
     </div>
     {locations.length > 0 ? (
-        <div className="flex-1 overflow-y-auto p-2 space-y-2">
+        <div className="p-2 space-y-2">
             {locations.map((location: Location) => (
                 <LocationCard key={location.id} location={location} />
             ))}
         </div>
     ) : (
-        <div className="flex-1 flex items-center justify-center text-center p-8">
-            <p className="text-muted-foreground text-sm md:text-base">
+        <div className="flex items-center justify-center text-center p-8">
+            <p className="text-muted-foreground text-sm">
                 No locations match your filters. <br /> Try adjusting your search.
             </p>
         </div>
