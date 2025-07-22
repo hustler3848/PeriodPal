@@ -26,15 +26,6 @@ export async function translate(
   return await translateFlow(input);
 }
 
-const translatePrompt = ai.definePrompt(
-  {
-    name: 'translatePrompt',
-    input: {schema: TranslateInputSchema},
-    output: {schema: TranslateOutputSchema},
-    prompt: `Translate the following text to {{language}}: {{{text}}}`,
-  }
-);
-
 const translateFlow = ai.defineFlow(
   {
     name: 'translateFlow',
@@ -49,6 +40,12 @@ const translateFlow = ai.defineFlow(
             schema: TranslateOutputSchema
         }
     });
-    return llmResponse.output ?? '';
+
+    const output = llmResponse.output();
+    if (!output) {
+      console.error('Translation failed, no output from model');
+      return ''; // Return empty string on failure
+    }
+    return output;
   }
 );
