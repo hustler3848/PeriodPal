@@ -108,7 +108,7 @@ export default function MapPage() {
             </Collapsible>
         </div>
         
-        <Tabs defaultValue="list" className="flex-1 flex flex-col" onValueChange={setActiveTab}>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
           <TabsList className="grid w-full grid-cols-2 rounded-none border-b shrink-0 mx-4">
             <TabsTrigger value="list"><List className="mr-2 h-4 w-4" />List View</TabsTrigger>
             <TabsTrigger value="map"><Map className="mr-2 h-4 w-4" />Map View</TabsTrigger>
@@ -121,7 +121,7 @@ export default function MapPage() {
           </TabsContent>
 
           <TabsContent value="map" className="flex-1">
-              <InteractiveMap locations={filteredLocations} isActive={activeTab === 'map'} />
+              {activeTab === 'map' && <InteractiveMap locations={filteredLocations} />}
           </TabsContent>
         </Tabs>
       </div>

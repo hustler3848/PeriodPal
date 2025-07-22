@@ -20,10 +20,9 @@ L.Marker.prototype.options.icon = defaultIcon;
 
 interface InteractiveMapProps {
     locations: Location[];
-    isActive: boolean;
 }
 
-export default function InteractiveMap({ locations, isActive }: InteractiveMapProps) {
+export default function InteractiveMap({ locations }: InteractiveMapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const markersRef = useRef<L.Marker[]>([]);
@@ -56,43 +55,41 @@ export default function InteractiveMap({ locations, isActive }: InteractiveMapPr
     useEffect(() => {
         const map = mapInstanceRef.current;
         if (!map) return;
-        
-        if (isActive) {
-            // Use a timeout to ensure the container is fully visible and rendered
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 100);
-        }
 
-        // Clear existing markers
-        markersRef.current.forEach(marker => marker.removeFrom(map));
-        markersRef.current = [];
+        // Use a timeout to ensure the map container is visible and has dimensions
+        setTimeout(() => {
+            map.invalidateSize();
 
-        // Add new markers
-        locations.forEach(location => {
-            const marker = L.marker([location.latitude, location.longitude]).addTo(map);
-            marker.bindPopup(`
-                <div class="font-sans">
-                    <h3 class="font-bold">${location.name}</h3>
-                    <p>${location.address}</p>
-                </div>
-            `);
-            markersRef.current.push(marker);
-        });
+            // Clear existing markers
+            markersRef.current.forEach(marker => marker.removeFrom(map));
+            markersRef.current = [];
 
-        // Update map view
-        if (locations.length > 0) {
-            const bounds = new L.LatLngBounds(locations.map(loc => [loc.latitude, loc.longitude]));
-            if (bounds.isValid()) {
-                map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+            // Add new markers
+            locations.forEach(location => {
+                const marker = L.marker([location.latitude, location.longitude]).addTo(map);
+                marker.bindPopup(`
+                    <div class="font-sans">
+                        <h3 class="font-bold">${location.name}</h3>
+                        <p>${location.address}</p>
+                    </div>
+                `);
+                markersRef.current.push(marker);
+            });
+
+            // Update map view
+            if (locations.length > 0) {
+                const bounds = new L.LatLngBounds(locations.map(loc => [loc.latitude, loc.longitude]));
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+                }
+            } else {
+                // If no locations, center on default position
+                const defaultPosition: [number, number] = [27.7172, 85.3240];
+                map.setView(defaultPosition, 12);
             }
-        } else {
-             // If no locations, center on default position
-            const defaultPosition: [number, number] = [27.7172, 85.3240];
-            map.setView(defaultPosition, 12);
-        }
+        }, 100);
 
-    }, [locations, isActive]); // Re-run this effect when locations or isActive change
+    }, [locations]); // Re-run this effect when locations change
 
     return <div ref={mapRef} className="w-full h-full" />;
 }
