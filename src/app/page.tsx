@@ -31,11 +31,12 @@ export default function HomePage() {
     <div className="flex flex-col min-h-dvh bg-background">
       <header className="py-8 px-4 flex justify-center items-center">
         <Image 
-          src="/logo.png"
+          src="https://placehold.co/250x100.png"
           alt="PeriodPal Logo"
           width={250}
           height={100}
           priority
+          data-ai-hint="logo health"
         />
       </header>
       <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 text-center">
