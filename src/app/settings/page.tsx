@@ -35,13 +35,13 @@ export default function SettingsPage() {
             <AppHeader title="Settings" />
             <main className="flex-1 p-4 sm:p-6 md:p-8">
                 <Card className="max-w-2xl mx-auto">
-                    <CardHeader>
-                        <CardTitle className="font-headline text-2xl">Customize Your Experience</CardTitle>
-                        <CardDescription>
+                    <CardHeader className="p-4 md:p-6">
+                        <CardTitle className="font-headline text-xl md:text-2xl">Customize Your Experience</CardTitle>
+                        <CardDescription className="text-sm md:text-base">
                             Personalize the app's language and content to match your cultural and regional needs.
                         </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-6 p-4 md:p-6">
                         <div className="space-y-2">
                             <Label htmlFor="region-select">Region</Label>
                             <Select value={region} onValueChange={handleRegionChange}>
@@ -56,7 +56,7 @@ export default function SettingsPage() {
                                     ))}
                                 </SelectContent>
                             </Select>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-xs md:text-sm text-muted-foreground">
                                 This will adapt content like myths and tips to be more relevant to you.
                             </p>
                         </div>
@@ -74,7 +74,7 @@ export default function SettingsPage() {
                                     ))}
                                 </SelectContent>
                             </Select>
-                             <p className="text-sm text-muted-foreground">
+                             <p className="text-xs md:text-sm text-muted-foreground">
                                 This will translate the app interface and chatbot.
                             </p>
                         </div>

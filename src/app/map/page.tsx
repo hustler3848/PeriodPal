@@ -65,7 +65,7 @@ export default function MapPage() {
         </div>
         <div className="space-y-4 mt-4">
             <div>
-                <Label className="text-base font-semibold">Product Type</Label>
+                <Label className="text-sm font-semibold">Product Type</Label>
                 <div className="flex flex-wrap gap-x-4 gap-y-2 mt-2">
                     {allProducts.map(product => (
                         <div key={product} className="flex items-center space-x-2">
@@ -74,20 +74,20 @@ export default function MapPage() {
                                 checked={selectedProducts.includes(product)}
                                 onCheckedChange={() => handleProductChange(product)}
                             />
-                            <Label htmlFor={`product-${product}`} className="font-normal">{product}</Label>
+                            <Label htmlFor={`product-${product}`} className="font-normal text-sm">{product}</Label>
                         </div>
                     ))}
                 </div>
             </div>
              <div>
-                <Label className="text-base font-semibold">Accessibility</Label>
+                <Label className="text-sm font-semibold">Accessibility</Label>
                  <div className="flex items-center space-x-2 mt-2">
                     <Checkbox 
                         id="accessible"
                         checked={showAccessible}
                         onCheckedChange={(checked) => setShowAccessible(!!checked)}
                     />
-                    <Label htmlFor="accessible" className="font-normal">Wheelchair Accessible</Label>
+                    <Label htmlFor="accessible" className="font-normal text-sm">Wheelchair Accessible</Label>
                 </div>
             </div>
         </div>
@@ -131,7 +131,7 @@ export default function MapPage() {
 const LocationListContent = ({ locations }: { locations: Location[] }) => (
   <>
     <div className="p-4 flex justify-between items-center shrink-0 border-b">
-        <h2 className="text-lg font-semibold">
+        <h2 className="text-base md:text-lg font-semibold">
             Locations ({locations.length})
         </h2>
         <Button asChild variant="outline" size="sm">
@@ -149,7 +149,7 @@ const LocationListContent = ({ locations }: { locations: Location[] }) => (
         </div>
     ) : (
         <div className="flex-1 flex items-center justify-center text-center p-8">
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm md:text-base">
                 No locations match your filters. <br /> Try adjusting your search.
             </p>
         </div>
