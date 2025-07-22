@@ -20,9 +20,10 @@ L.Marker.prototype.options.icon = defaultIcon;
 
 interface InteractiveMapProps {
     locations: Location[];
+    isActive: boolean;
 }
 
-export default function InteractiveMap({ locations }: InteractiveMapProps) {
+export default function InteractiveMap({ locations, isActive }: InteractiveMapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const markersRef = useRef<L.Marker[]>([]);
@@ -55,6 +56,13 @@ export default function InteractiveMap({ locations }: InteractiveMapProps) {
     useEffect(() => {
         const map = mapInstanceRef.current;
         if (!map) return;
+        
+        if (isActive) {
+            // Use a timeout to ensure the container is fully visible and rendered
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 100);
+        }
 
         // Clear existing markers
         markersRef.current.forEach(marker => marker.removeFrom(map));
@@ -84,7 +92,7 @@ export default function InteractiveMap({ locations }: InteractiveMapProps) {
             map.setView(defaultPosition, 12);
         }
 
-    }, [locations]); // Re-run this effect when locations change
+    }, [locations, isActive]); // Re-run this effect when locations or isActive change
 
     return <div ref={mapRef} className="w-full h-full" />;
 }
