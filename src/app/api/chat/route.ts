@@ -2,7 +2,6 @@ import {
   GoogleGenerativeAI,
   HarmCategory,
   HarmBlockThreshold,
-  GenerateContentRequest,
   Content,
 } from '@google/generative-ai';
 import { GoogleGenerativeAIStream, StreamingTextResponse, Message } from 'ai';
@@ -11,9 +10,9 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export const runtime = 'edge';
 
-// Function to build the content array for the Gemini API
-const buildGoogleGenAIPrompt = (messages: Message[], system_prompt: string) => {
-  const contents: Content[] = messages
+// Converts the Vercel AI SDK message history to the format expected by the Google Generative AI SDK
+const buildGoogleGenAIPrompt = (messages: Message[]): Content[] => {
+  return messages
     .filter(
       (message) => message.role === 'user' || message.role === 'assistant'
     )
@@ -21,20 +20,6 @@ const buildGoogleGenAIPrompt = (messages: Message[], system_prompt: string) => {
       role: message.role === 'user' ? 'user' : 'model',
       parts: [{ text: message.content }],
     }));
-  
-  // Add the system prompt as the first content object
-  // Note: Gemini API requires the system prompt to be the very first message.
-  contents.unshift({
-      role: 'user', // System prompts are sent as a user message
-      parts: [{ text: system_prompt }],
-  });
-   contents.push({
-      role: 'model', // But the response should come from the model
-      parts: [{ text: "Okay, I'm ready. How can I help?" }],
-  });
-
-
-  return contents;
 };
 
 export async function POST(req: Request) {
@@ -94,12 +79,17 @@ export async function POST(req: Request) {
 
     const model = genAI.getGenerativeModel({ 
       model: 'gemini-1.5-flash', 
-      safetySettings 
+      safetySettings,
+      systemInstruction: system_prompt,
     });
 
-    const contents = buildGoogleGenAIPrompt(messages, system_prompt);
-
-    const stream = await model.generateContentStream({ contents });
+    const chatHistory = buildGoogleGenAIPrompt(messages.slice(0, -1));
+    
+    const stream = await model.generateContentStream([
+        ...chatHistory,
+        { role: 'user', parts: [{ text: lastMessage.content }] },
+    ]);
+    
     const googleStream = GoogleGenerativeAIStream(stream);
 
     return new StreamingTextResponse(googleStream);
