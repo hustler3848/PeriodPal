@@ -44,20 +44,20 @@ export default function HomePage() {
             {uiText.welcome}
           </h2>
           <p className="text-muted-foreground mb-8 text-lg">
-            {ui.welcomeSubtitle}
+            {uiText.welcomeSubtitle}
           </p>
 
           <div className="grid grid-cols-1 gap-4">
             <Link href="/chat" passHref>
               <Button size="lg" className="w-full h-16 text-lg tracking-wide font-semibold">
                 <MessageCircle className="mr-3 h-6 w-6" />
-                Ask a Question
+                {uiText.askAQuestion}
               </Button>
             </Link>
             <Link href="/map" passHref>
               <Button size="lg" variant="secondary" className="w-full h-16 text-lg tracking-wide font-semibold">
                 <MapPin className="mr-3 h-6 w-6" />
-                Find Free Products
+                {uiText.findFreeProducts}
               </Button>
             </Link>
           </div>
@@ -67,11 +67,11 @@ export default function HomePage() {
               <div className="p-3 bg-accent/50 rounded-full">
                 <Lightbulb className="w-6 h-6 text-accent-foreground" />
               </div>
-              <CardTitle className="font-headline text-xl">Daily Tip</CardTitle>
+              <CardTitle className="font-headline text-xl">{uiText.dailyTip}</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0">
               <p className="text-foreground/90">
-                {ui.tipContent}
+                {uiText.tipContent}
               </p>
             </CardContent>
           </Card>
@@ -81,7 +81,7 @@ export default function HomePage() {
                <div className="p-3 bg-secondary/50 rounded-full">
                 <ShieldQuestion className="w-6 h-6 text-secondary-foreground" />
               </div>
-              <CardTitle className="font-headline text-xl">Myth Buster</CardTitle>
+              <CardTitle className="font-headline text-xl">{uiText.mythBuster}</CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0 space-y-2">
               <p className="font-semibold text-foreground/90">{myth.myth}</p>
@@ -98,4 +98,3 @@ export default function HomePage() {
     </div>
   );
 }
-
