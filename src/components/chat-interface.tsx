@@ -243,7 +243,7 @@ export default function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full max-w-3xl mx-auto">
-      <div className="flex justify-end items-center mb-4 px-4 pt-4">
+      <div className="flex justify-end items-center mb-4 pt-4">
          <Select value={language} onValueChange={setLanguage}>
           <SelectTrigger className="w-auto gap-2">
             <Globe className="w-4 h-4" />
@@ -258,8 +258,8 @@ export default function ChatInterface() {
           </SelectContent>
         </Select>
       </div>
-      <ScrollArea className="flex-1">
-        <div className="px-4 pb-4">
+      <ScrollArea className="flex-1 -mr-4 pr-4">
+        <div className="pb-4">
             {messages.length === 0 && (
             <div className="text-center">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -323,7 +323,7 @@ export default function ChatInterface() {
         </div>
       </ScrollArea>
 
-      <form onSubmit={handleLocalSubmit} className="mt-auto flex items-end gap-2 border-t p-4 bg-background">
+      <form onSubmit={handleLocalSubmit} className="mt-auto flex items-end gap-2 border-t pt-4 bg-background">
         <div className="flex-1 flex items-end gap-2 border rounded-xl px-2 py-1 shadow-sm">
             <Textarea
                 value={input}
