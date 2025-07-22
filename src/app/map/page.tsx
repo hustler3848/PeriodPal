@@ -120,7 +120,7 @@ export default function MapPage() {
               </div>
           </TabsContent>
 
-          <TabsContent value="map" className="flex-1 h-[calc(100dvh-18rem)]">
+          <TabsContent value="map" className="flex-1">
               <InteractiveMap locations={filteredLocations} isActive={activeTab === 'map'} />
           </TabsContent>
         </Tabs>
