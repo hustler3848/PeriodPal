@@ -27,6 +27,8 @@ const SpeechRecognition =
   (typeof window !== 'undefined' && (window as any).webkitSpeechRecognition);
 
 const CHAT_STORAGE_KEY = 'periodpal-chat-history-v2';
+const SUGGESTIONS_MARKER = 'SUGGESTIONS:';
+
 
 export default function ChatInterface() {
   const { region, language, setLanguage, isInitialized } = useSettings();
@@ -231,6 +233,44 @@ export default function ChatInterface() {
     )
   }
 
+  const renderMessageContent = (message: Message) => {
+    if (message.role === 'user') {
+      return <p className="whitespace-pre-wrap text-base">{message.content}</p>;
+    }
+
+    const hasSuggestions = message.content.includes(SUGGESTIONS_MARKER);
+    let mainContent = message.content;
+    let suggestions: string[] = [];
+
+    if (hasSuggestions) {
+      const parts = message.content.split(SUGGESTIONS_MARKER);
+      mainContent = parts[0];
+      suggestions = parts[1].trim().split('\n').filter(q => q.trim() !== '');
+    }
+
+    return (
+      <div className="flex flex-col">
+        <p className="whitespace-pre-wrap text-base">{mainContent}</p>
+        {suggestions.length > 0 && (
+          <div className="mt-4 flex flex-col items-start gap-2">
+            {suggestions.map((q, i) => (
+              <Button 
+                key={i} 
+                variant="outline" 
+                size="sm"
+                className="h-auto whitespace-normal text-left"
+                onClick={() => handleFaqClick(q)}
+                disabled={isLoading}
+              >
+                {q}
+              </Button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col h-full max-w-3xl mx-auto">
       <div className="flex justify-end items-center mb-4 pt-4">
@@ -269,32 +309,31 @@ export default function ChatInterface() {
             )}
         
             {messages.map(message => (
-                <div
-                key={message.id}
-                className={cn('flex items-start gap-3 py-4', { 'justify-end': message.role === 'user' })}
-                >
-                {message.role === 'assistant' && (
-                    <Avatar className="w-9 h-9 border-2 border-primary">
-                    <AvatarFallback className="bg-primary text-primary-foreground">
-                        <Heart className="w-5 h-5" />
-                    </AvatarFallback>
-                    </Avatar>
-                )}
-                <div
-                    className={cn('max-w-xs md:max-w-md lg:max-w-lg rounded-2xl p-3.5 shadow', {
-                    'bg-primary text-primary-foreground rounded-br-none': message.role === 'user',
-                    'bg-card text-card-foreground rounded-bl-none': message.role === 'assistant',
-                    })}
-                >
-                    <p className="whitespace-pre-wrap text-base">{message.content}</p>
-                </div>
-                {message.role === 'user' && (
-                    <Avatar className="w-9 h-9 border">
-                    <AvatarFallback>
-                        <User className="w-5 h-5" />
-                    </AvatarFallback>
-                    </Avatar>
-                )}
+                <div key={message.id} className="mb-4">
+                    <div className={cn('flex items-start gap-3', { 'justify-end': message.role === 'user' })}>
+                        {message.role === 'assistant' && (
+                            <Avatar className="w-9 h-9 border-2 border-primary">
+                                <AvatarFallback className="bg-primary text-primary-foreground">
+                                    <Heart className="w-5 h-5" />
+                                </AvatarFallback>
+                            </Avatar>
+                        )}
+                        <div
+                            className={cn('max-w-xs md:max-w-md lg:max-w-lg rounded-2xl p-3.5 shadow', {
+                            'bg-primary text-primary-foreground rounded-br-none': message.role === 'user',
+                            'bg-card text-card-foreground rounded-bl-none': message.role === 'assistant',
+                            })}
+                        >
+                            {renderMessageContent(message)}
+                        </div>
+                        {message.role === 'user' && (
+                            <Avatar className="w-9 h-9 border">
+                                <AvatarFallback>
+                                    <User className="w-5 h-5" />
+                                </AvatarFallback>
+                            </Avatar>
+                        )}
+                    </div>
                 </div>
             ))}
             {isLoading && (

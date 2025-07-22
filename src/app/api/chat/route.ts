@@ -47,6 +47,11 @@ export async function POST(req: Request) {
 
     **IMPORTANT: Give response in 1st paragraph about the quesiton and 1 sentence descipriton, 2nd paragrph (points if needed) conclusion.**
 
+    After the conclusion, suggest 2-3 related follow-up questions. Start this section on a new line with the marker "SUGGESTIONS:". Each suggested question should be on its own new line. For example:
+    SUGGESTIONS:
+    What are the best foods to eat during a period?
+    Is it normal for my cycle to change?
+
     You should be able to answer questions related to the following topics:
     - Managing period cramps (e.g., "How to manage cramps?")
     - First period advice (e.g., "I got my first period, what should I do?")
