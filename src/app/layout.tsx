@@ -41,7 +41,7 @@ export default function RootLayout({
       <body className={cn("font-body antialiased", fontPoppins.variable, fontInter.variable, "min-h-screen bg-background font-sans")}>
         <SettingsProvider>
           <div className="relative flex min-h-dvh flex-col bg-background pb-20 md:pb-0">
-            <main className="flex-1 px-4">{children}</main>
+            <main className="flex-1">{children}</main>
             <BottomNav />
           </div>
           <Toaster />

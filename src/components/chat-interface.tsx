@@ -36,6 +36,7 @@ export default function ChatInterface() {
   const [translatedFaqs, setTranslatedFaqs] = useState<string[]>([]);
   const recognitionRef = useRef<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -205,32 +206,21 @@ export default function ChatInterface() {
     handleSubmit(e);
   };
 
-  const handleFaqClick = async (faq: string) => {
+  const handleFaqClick = (faq: string) => {
     if (isLoading || !isOnline) {
-         toast({
+        toast({
             variant: 'destructive',
             title: 'You are offline',
             description: "Please check your connection to chat with the AI.",
         });
         return;
-    };
-    
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: faq,
-    };
-    
-    setMessages([...messages, userMessage]);
-    handleSubmit(new Event('submit') as unknown as FormEvent<HTMLFormElement>, {
-        options: {
-            body: {
-                region,
-                messages: [userMessage],
-            }
-        }
-    });
-    setInput('');
+    }
+    setInput(faq);
+    // Use a short timeout to allow React to update the input state
+    // before we programmatically submit the form.
+    setTimeout(() => {
+        formRef.current?.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    }, 100);
   };
   
   if (!isInitialized) {
@@ -260,7 +250,7 @@ export default function ChatInterface() {
       </div>
       <ScrollArea className="flex-1 -mr-4 pr-4">
         <div className="pb-4">
-            {messages.length === 0 && (
+            {messages.length === 0 && !isLoading && (
             <div className="text-center">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {translatedFaqs.map((faq, index) => (
@@ -307,7 +297,7 @@ export default function ChatInterface() {
                 )}
                 </div>
             ))}
-            {isLoading && messages[messages.length -1]?.role === 'user' && (
+            {isLoading && (
                 <div className="flex items-start gap-3 py-4">
                 <Avatar className="w-9 h-9 border-2 border-primary">
                     <AvatarFallback className="bg-primary text-primary-foreground">
@@ -323,7 +313,7 @@ export default function ChatInterface() {
         </div>
       </ScrollArea>
 
-      <form onSubmit={handleLocalSubmit} className="mt-auto flex items-end gap-2 border-t pt-4 bg-background">
+      <form ref={formRef} onSubmit={handleLocalSubmit} className="mt-auto flex items-end gap-2 border-t pt-4 bg-background">
         <div className="flex-1 flex items-end gap-2 border rounded-xl px-2 py-1 shadow-sm">
             <Textarea
                 value={input}

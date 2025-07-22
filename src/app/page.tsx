@@ -38,7 +38,7 @@ export default function HomePage() {
           priority
         />
       </header>
-      <main className="flex-1 flex flex-col items-center justify-center text-center">
+      <main className="flex-1 flex flex-col px-4 items-center justify-center text-center">
         <div className="max-w-md w-full">
           <h2 className="text-3xl md:text-4xl font-bold font-headline mb-2 text-foreground">
             {uiText.welcome}
