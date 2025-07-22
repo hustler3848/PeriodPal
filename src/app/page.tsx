@@ -1,13 +1,15 @@
 
+
 'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useSettings } from "@/context/settings-provider";
 import { localizations } from "@/lib/localization";
-import { Heart, Lightbulb, MapPin, MessageCircle, ShieldQuestion } from "lucide-react";
+import { Lightbulb, MapPin, MessageCircle, ShieldQuestion } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function HomePage() {
   const { region, language, isInitialized } = useSettings();
@@ -27,11 +29,14 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-dvh bg-background">
-      <header className="p-6 flex justify-center items-center">
-        <div className="flex items-center gap-3 text-3xl font-bold text-primary-foreground font-headline bg-primary py-3 px-6 rounded-full shadow-lg">
-          <Heart className="w-10 h-10" />
-          <h1 className="tracking-wide">PeriodPal</h1>
-        </div>
+      <header className="py-8 px-4 flex justify-center items-center">
+        <Image 
+          src="/logo.png"
+          alt="PeriodPal Logo"
+          width={250}
+          height={100}
+          priority
+        />
       </header>
       <main className="flex-1 flex flex-col items-center justify-center p-4 sm:p-6 text-center">
         <div className="max-w-md w-full">
@@ -39,7 +44,7 @@ export default function HomePage() {
             {uiText.welcome}
           </h2>
           <p className="text-muted-foreground mb-8 text-lg">
-            {uiText.welcomeSubtitle}
+            {ui.welcomeSubtitle}
           </p>
 
           <div className="grid grid-cols-1 gap-4">
@@ -66,7 +71,7 @@ export default function HomePage() {
             </CardHeader>
             <CardContent className="p-4 pt-0">
               <p className="text-foreground/90">
-                {uiText.tipContent}
+                {ui.tipContent}
               </p>
             </CardContent>
           </Card>
@@ -93,3 +98,4 @@ export default function HomePage() {
     </div>
   );
 }
+
