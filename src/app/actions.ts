@@ -1,9 +1,8 @@
 
 'use server';
 
-import { translate as translateFlow } from '@/ai/flows/translate-flow';
-import type { TranslateInput, TranslateOutput } from '@/ai/flows/translate-flow';
+import { translate as translateFlow, TranslateInput } from '@/ai/flows/translate-flow';
 
-export async function translate(input: TranslateInput): Promise<TranslateOutput> {
+export async function translate(input: TranslateInput): Promise<string> {
     return translateFlow(input);
 }

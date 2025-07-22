@@ -1,4 +1,6 @@
 
+'use server';
+
 /**
  * @fileOverview A flow that translates text to a specified language.
  *
@@ -9,22 +11,33 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'zod';
-import { googleAI } from '@genkit-ai/googleai';
 
 export const TranslateInputSchema = z.object({
-  text: z.string(),
-  language: z.string(),
+  text: z.string().describe('The text to translate.'),
+  language: z.string().describe('The language to translate to.'),
 });
 export type TranslateInput = z.infer<typeof TranslateInputSchema>;
 
-export const TranslateOutputSchema = z.string();
+export const TranslateOutputSchema = z.object({
+  translation: z.string().describe('The translated text.'),
+});
 export type TranslateOutput = z.infer<typeof TranslateOutputSchema>;
 
 export async function translate(
   input: TranslateInput
-): Promise<TranslateOutput> {
-  return await translateFlow(input);
+): Promise<string> {
+  const result = await translateFlow(input);
+  return result.translation;
 }
+
+const translatePrompt = ai.definePrompt({
+    name: 'translatePrompt',
+    input: { schema: TranslateInputSchema },
+    output: { schema: TranslateOutputSchema },
+    prompt: `Translate the following text to {{language}}: {{{text}}}`,
+    model: 'googleai/gemini-1.5-flash',
+});
+
 
 const translateFlow = ai.defineFlow(
   {
@@ -33,19 +46,7 @@ const translateFlow = ai.defineFlow(
     outputSchema: TranslateOutputSchema,
   },
   async (input) => {
-    const llmResponse = await ai.generate({
-        model: googleAI('gemini-1.5-flash'),
-        prompt: `Translate the following text to ${input.language}: ${input.text}`,
-        output: {
-            schema: TranslateOutputSchema
-        }
-    });
-
-    const output = llmResponse.output();
-    if (!output) {
-      console.error('Translation failed, no output from model');
-      return ''; // Return empty string on failure
-    }
-    return output;
+    const llmResponse = await translatePrompt(input);
+    return llmResponse.output()!;
   }
 );
